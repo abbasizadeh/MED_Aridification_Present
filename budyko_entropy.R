@@ -20,16 +20,16 @@ w_vec <- c()
 
 # Define bins between [1, 4]
 bins <- data.frame()
-w_tmp <- 4
+w_dummy <- 4
 
-while(w_tmp > 1.40) {#1.4142136
+while(w_dummy > 1.40) {#1.4142136
   
   for (A in seq(0, 5, by = 0.25)) {
     evaporative_vec <-
-      append(evaporative_vec, evaporative(aridity = A, w = logb(4, base = w_tmp)))
+      append(evaporative_vec, evaporative(aridity = A, w = logb(4, base = w_dummy)))
     aridity_vec <- append(aridity_vec, A)
   }
-  w_vec <- rep(logb(4, base = w_tmp), length(seq(0, 5, by = 0.25)))
+  w_vec <- rep(logb(4, base = w_dummy), length(seq(0, 5, by = 0.25)))
   
   fu <-
     data.frame(cbind(aridity_vec, evaporative_vec, w_vec))
@@ -39,7 +39,7 @@ while(w_tmp > 1.40) {#1.4142136
   w_vec <- c()
   
   bins <- rbind(bins, fu)
-  w_tmp <- w_tmp - 0.25857864 # logb(4, base = 4-(10*0.25857864)) = 4;
+  w_dummy <- w_dummy - 0.25857864 # logb(4, base = 4-(10*0.25857864)) = 4;
 }
 
 
@@ -51,14 +51,14 @@ Omega_bins <- unique(bins$Omega)
 # test using random numbers
 
 # random aridity index
-arid_index_tmp <-
+arid_index_dummy <-
   runif(100, min = 0.5, max = 5)         # min = 3, max = 5
 
 # random evaporative index
-evap_index_tmp <-
+evap_index_dummy <-
   runif(100, min = 0.0, max = 1)   # min = 0.25, max = 0.3
 
-combined_data <- data.frame(cbind(arid_index_tmp, evap_index_tmp))
+combined_data <- data.frame(cbind(arid_index_dummy, evap_index_dummy))
 
 
 # visualization
@@ -77,17 +77,17 @@ ggplot(data = bins) +
     slope = 1,
     color = "green"
   ) +
-  geom_point(data = combined_data , aes(x = arid_index_tmp, y = evap_index_tmp))
+  geom_point(data = combined_data , aes(x = arid_index_dummy, y = evap_index_dummy))
 
 
 # estimating w (Omega) of the the points
 estimated_omega_vec <- c()
 
-for (i in 1:length(combined_data$arid_index_tmp)) {
+for (i in 1:length(combined_data$arid_index_dummy)) {
   # objective function
   mae = function(omega) {
-    A <- combined_data[i,]$arid_index_tmp
-    E <- combined_data[i,]$evap_index_tmp
+    A <- combined_data[i,]$arid_index_dummy
+    E <- combined_data[i,]$evap_index_dummy
     mymae = abs(E - (1 + (A) - (1 + (A) ^ omega) ^ (1 / omega)))
   }
   
@@ -131,17 +131,17 @@ freq_tbl <-
   table(cut(combined_data$estimated_omega_vec, breaks = Omega_bins))
 
 # calculate entropy of points on the Budyko space
-entropy_data <- 0
+entropy_total <- 0
 
-for (i in 1:length(freq_tbl)) {
-  if (freq_tbl[i] == 0) {
-    entrpy_tmp <- 0
+for (bin_itr in 1:length(freq_tbl)) {
+  if (freq_tbl[bin_itr] == 0) {
+    entrpy_dummy <- 0
   } else{
-    entrpy_tmp <- (freq_tbl[i] / 100) * log2(freq_tbl[i] / 100) * -1
+    entrpy_dummy <- (freq_tbl[bin_itr] / 100) * log2(freq_tbl[bin_itr] / 100) * -1
   }
-  entropy_data <- entropy_data + entrpy_tmp
+  entropy_total <- entropy_total + entrpy_dummy
 }
-entropy_data
+entropy_total
 
 
 
