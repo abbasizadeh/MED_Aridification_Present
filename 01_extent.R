@@ -6,11 +6,12 @@ library(raster)
 library(rgdal) 
 library(ggplot2) 
 
+source("./source/global_variables.R")
 
-OUTFILES_DIR <- "../shared/data_projects/med_datasets/2000_2019_data"
-STUDY_PERIOD_START <- as.Date("2000-01-01")
-STUDY_PERIOD_END <- as.Date("2019-12-31")
-STUDY_AREA <- extent(-10.25, 40.25, 29.75, 45.25)
+# PATH_OUTFILES <- "../shared/data_projects/med_datasets/2000_2019_data"
+# STUDY_PERIOD_START <- as.Date("2000-01-01")
+# STUDY_PERIOD_END <- as.Date("2019-12-31")
+# STUDY_AREA <- extent(-10.25, 40.25, 29.75, 45.25)
 
 # crop function space-time
 source('../ithaca/source/geo_functions.R')
@@ -31,7 +32,7 @@ crop_save_nc <-
                       STUDY_PERIOD_START,
                       STUDY_PERIOD_END,
                       STUDY_AREA)
-    outfile <- paste0(OUTFILES_DIR, link_plus_name_for_save)
+    outfile <- paste0(PATH_OUTFILES, link_plus_name_for_save)
     writeRaster(
       crop_data,
       outfile,
