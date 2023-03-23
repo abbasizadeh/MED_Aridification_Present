@@ -150,44 +150,5 @@ saveRDS(object = evap_index_data_frame = paste0(path_save, "evaporative_index.rd
 
 
 
-test_era5 <-  brick("../shared/data_projects/med_datasets/2000_2019_data/sim/evap/era5_pet_mm_med_200001_201912_025_monthly.nc")
 
-plot(test_era5[[1]])
-t_df <- as.data.frame(test_era5[[1]],xy = TRUE,
-                      long = TRUE,
-                      na.rm = TRUE)
-
-which(t_df[t_df$value == min(t_df$value)])
-
-test_nc <- nc_open("../shared/data_projects/med_datasets/2000_2019_data/sim/evap/era5_pet_mm_med_200001_201912_025_monthly.nc")
-fillvalue <- ncatt_get(test_nc,"pet","_FillValue")
-fillvalue$value
-tmp_array <- ncvar_get(test_nc,"pet")
-tmp_array[tmp_array==fillvalue$value] <- NA
-tmp_slice <- tmp_array[,,1]
-plot(raster(tmp_slice))
-
-# writeRaster(evp_ard_index, path_save)
-
-# dummie <- as.data.frame(evp_ard_index, xy = TRUE, long = TRUE, na.rm = TRUE)
-# plot(evp_ard_index)
-# 
-# 
-# 
-# crs(evp_ard_index) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0" 
-# writeRaster(
-#   evp_ard_index,
-#   "../shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/evaporative_p-merra2_e-terraclimate.nc",
-#   overwrite = TRUE,
-#   format = "CDF",
-#   varname = "evap_index",
-#   varunit = "-",
-#   longname = "evaporative index",
-#   xname = "lon",
-#   yname = "lat"
-# )
-# 
-# 
-# 
-# p_data_list
 
