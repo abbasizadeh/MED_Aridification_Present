@@ -170,3 +170,35 @@ save_nc <- function(dummie_nc, nc_out){
   ncatt_put(ncoutput,"time","axis","T")
   nc_close(ncoutput)
 }
+
+
+
+#  Function to crop and save nc file (it uses crop_space_time function)
+crop_save_nc <- function(link_to_raw_nc,
+                         nc_out,
+                         var_name,
+                         var_unit,
+                         long_name) {
+  # obs precipitation data
+  nc_to_brick <- brick(link_to_raw_nc)
+  
+  # crop
+  crop_data <-
+    crop_space_time(nc_to_brick,
+                    STUDY_PERIOD_START,
+                    STUDY_PERIOD_END,
+                    STUDY_AREA)
+  
+  # save nc
+  writeRaster(
+    crop_data,
+    nc_out,
+    overwrite = TRUE,
+    format = "CDF",
+    varname = var_name,
+    varunit = var_unit,
+    longname = long_name,
+    xname = "lon",
+    yname = "lat"
+  )
+}
