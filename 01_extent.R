@@ -8,13 +8,9 @@ library(ggplot2)
 
 source("./source/global_variables.R")
 
-# PATH_OUTFILES <- "../shared/data_projects/med_datasets/2000_2019_data"
-# STUDY_PERIOD_START <- as.Date("2000-01-01")
-# STUDY_PERIOD_END <- as.Date("2019-12-31")
-# STUDY_AREA <- extent(-10.25, 40.25, 29.75, 45.25)
 
 # crop function space-time
-source('../ithaca/source/geo_functions.R')
+source('./source/functions.R')
 
 
 # crop_save function
