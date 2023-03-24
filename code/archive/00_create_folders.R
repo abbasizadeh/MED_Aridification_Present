@@ -12,3 +12,4 @@ dir.create('./results')
 dir.create('./results/figures')
 dir.create('./results/figures/poster') 
 dir.create('./results/figures/archive') #old figures that are not used
+
