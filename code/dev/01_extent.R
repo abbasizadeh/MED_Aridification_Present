@@ -2,12 +2,11 @@
 # min_lon = -10; max_lon = 40; min_lat = 30; max_lat = 45
 
 
-
 # load global variables and packages
-source("./source/global_variables.R")
+source("./code/source/global_variables.R")
 
 # load functions
-source('./source/functions.R')
+source('./code/source/functions.R')
 
 
 # read obs precipitaion files
