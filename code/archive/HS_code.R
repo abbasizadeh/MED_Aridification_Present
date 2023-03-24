@@ -5,12 +5,11 @@ graphics.off()
 library(zoo)
 library(ncdf4)
 library(xts)
-#library(chron)
-#library(easyNCDF)
+
 maindir = getwd()
 setwd(maindir)
 
-## read discharge:
+## read the ncfile data:
 
 nc_data <- nc_open("merge_temp.nc")
 tavg  <- ncvar_get(nc_data, "tavg")
@@ -19,9 +18,11 @@ tmax  <- ncvar_get(nc_data, "tmax")
 lat <- ncvar_get(nc_data, "lat")
 lon <- ncvar_get(nc_data, "lon")
 time_int=ncvar_get(nc_data, "time")
+
 #nc_close(nc_data)
 
 ## create date time series, obtain the origin from the units in time variable
+
 dateNC = as.Date(time_int/24, origin="1900-01-01", tz="UTC")
 
 #tavg=zoo(tavg,dateNC)
@@ -76,18 +77,8 @@ ncatt_put(ncout,"lon","axis","X")
 ncatt_put(ncout,"lat","axis","Y")
 ncatt_put(ncout,"time","axis","T")
 ncvar_put(ncout,pet_def,pet)
+
 #pet_HS.nc <- nc_create("pet_HS.nc", list(tmp_def))
 
-
-# Adding variable to exisiting files
-
-#ncdata <- nc_open("CopyOfmerge_temp.nc")
-#londim <- ncdata$dim[["lon"]]
-#latdim <- ncdata$dim[["lat"]]
-#timedim <- ncdata$dim[["time"]]
-#dlname <- "PET hargreve samani method"
-#tmp_def <- ncvar_def("pet","mm/day",list(londim,latdim,timedim),-9999,dlname,prec = "float")
-#tmp_def <- ncvar_def("pet","mm/day",list(londim,latdim,timedim),pet)
-#ncdata <-ncvar_add(ncdata,pet)
 nc_close(ncout)
 print(Sys.time()-start)
