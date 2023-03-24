@@ -1,6 +1,10 @@
-# Calculation of entropy on the Budyko scape
+# Calculation of entropy on the Budyko space
 
-library(ggplot2)
+# load global variables and packages
+source("./code/source/global_variables.R")
+
+# load functions
+source('./code/source/functions.R')
 library(RcppDE)
 
 
@@ -20,16 +24,16 @@ w_vec <- c()
 
 # Define bins between [1, 4]
 bins <- data.frame()
-w_dummy <- 4
+w_dummie <- 4
 
-while(w_dummy > 1.40) {#1.4142136
+while(w_dummie > 1.40) {#1.4142136
   
   for (A in seq(0, 5, by = 0.25)) {
     evaporative_vec <-
-      append(evaporative_vec, evaporative(aridity = A, w = logb(4, base = w_dummy)))
+      append(evaporative_vec, evaporative(aridity = A, w = logb(4, base = w_dummie)))
     aridity_vec <- append(aridity_vec, A)
   }
-  w_vec <- rep(logb(4, base = w_dummy), length(seq(0, 5, by = 0.25)))
+  w_vec <- rep(logb(4, base = w_dummie), length(seq(0, 5, by = 0.25)))
   
   fu <-
     data.frame(cbind(aridity_vec, evaporative_vec, w_vec))
@@ -39,7 +43,7 @@ while(w_dummy > 1.40) {#1.4142136
   w_vec <- c()
   
   bins <- rbind(bins, fu)
-  w_dummy <- w_dummy - 0.25857864 # logb(4, base = 4-(10*0.25857864)) = 4;
+  w_dummie <- w_dummie - 0.25857864 # logb(4, base = 4-(10*0.25857864)) = 4;
 }
 
 
@@ -48,17 +52,28 @@ bins$Omega <- round(bins$Omega, digits = 2)
 Omega_bins <- unique(bins$Omega)
 
 
-# test using random numbers
 
-# random aridity index
-arid_index_dummy <-
-  runif(100, min = 0.5, max = 5)         # min = 3, max = 5
+# # test using random numbers
+# # random aridity index
+# arid_index_dummie <-
+#   runif(100, min = 0.5, max = 5)         # min = 3, max = 5
+# 
+# # random evaporative index
+# evap_index_dummie <-
+#   runif(100, min = 0.0, max = 1)   # min = 0.25, max = 0.3
+# 
+# combined_data <- data.frame(cbind(arid_index_dummie, evap_index_dummie))
 
-# random evaporative index
-evap_index_dummy <-
-  runif(100, min = 0.0, max = 1)   # min = 0.25, max = 0.3
 
-combined_data <- data.frame(cbind(arid_index_dummy, evap_index_dummy))
+path_load <- "../shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/"
+
+budyko_data <- readRDS(file = paste0(path_load, "budyko_data.rds"))
+
+unique(budyko_data$combination)
+
+
+
+budyko_data[2500, ]
 
 
 # visualization
@@ -70,24 +85,32 @@ ggplot(data = bins) +
   )) +
   geom_hline(yintercept = 1,
              linetype = "dashed",
-             color = "green") +
+             color = "red") +
+  geom_vline(
+    xintercept = 1,
+    linetype = "dashed",
+    color = "red"
+  ) + 
   geom_abline(
     intercept = 0,
     linetype = "dashed",
     slope = 1,
-    color = "green"
-  ) +
-  geom_point(data = combined_data , aes(x = arid_index_dummy, y = evap_index_dummy))
+    color = "red"
+  ) + 
+  geom_point(data = budyko_test, 
+             aes(x = arid_index, y = evap_index), alpha = 0.2) +
+  ylim(c(0,1.5)) + xlim(c(0, 6)) +
+  facet_wrap(vars(gridcode))
 
 
 # estimating w (Omega) of the the points
 estimated_omega_vec <- c()
 
-for (i in 1:length(combined_data$arid_index_dummy)) {
+for (i in 1:length(combined_data$arid_index_dummie)) {
   # objective function
   mae = function(omega) {
-    A <- combined_data[i,]$arid_index_dummy
-    E <- combined_data[i,]$evap_index_dummy
+    A <- combined_data[i,]$arid_index_dummie
+    E <- combined_data[i,]$evap_index_dummie
     mymae = abs(E - (1 + (A) - (1 + (A) ^ omega) ^ (1 / omega)))
   }
   
@@ -135,11 +158,11 @@ entropy_total <- 0
 
 for (bin_itr in 1:length(freq_tbl)) {
   if (freq_tbl[bin_itr] == 0) {
-    entrpy_dummy <- 0
+    entrpy_dummie <- 0
   } else{
-    entrpy_dummy <- (freq_tbl[bin_itr] / 100) * log2(freq_tbl[bin_itr] / 100) * -1
+    entrpy_dummie <- (freq_tbl[bin_itr] / 100) * log2(freq_tbl[bin_itr] / 100) * -1
   }
-  entropy_total <- entropy_total + entrpy_dummy
+  entropy_total <- entropy_total + entrpy_dummie
 }
 entropy_total
 
