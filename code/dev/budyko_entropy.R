@@ -71,7 +71,8 @@ budyko_data <- readRDS(file = paste0(path_load, "budyko_data.rds"))
 
 unique(budyko_data$combination)
 
-
+budyko_data[arid_index > 20, arid_index := 20]
+budyko_data[evap_index > 20, evap_index := 20]
 
 budyko_data[2500, ]
 
@@ -97,10 +98,12 @@ ggplot(data = bins) +
     slope = 1,
     color = "red"
   ) + 
-  geom_point(data = budyko_test, 
-             aes(x = arid_index, y = evap_index), alpha = 0.2) +
-  ylim(c(0,1.5)) + xlim(c(0, 6)) +
-  facet_wrap(vars(gridcode))
+  geom_point(data = budyko_data, 
+             aes(x = arid_index, y = evap_index), alpha = 0.2) + 
+  facet_wrap(vars(combination)) +
+  ylim(c(0,1.5)) + xlim(c(0, 6))
+# +
+#   facet_wrap(vars(gridcode))
 
 
 # estimating w (Omega) of the the points
