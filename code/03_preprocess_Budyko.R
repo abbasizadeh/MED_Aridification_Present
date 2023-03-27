@@ -92,6 +92,8 @@ colnames(evap_index_data_frame) = colume_names
 colnames(arid_index_data_frame) = colume_names
 
 
+
+
 for(p_itr in 1:length(p_data_frame$p_raster_name)) {
   for (e_itr in 1:length(e_data_frame$e_raster_name)) {
     

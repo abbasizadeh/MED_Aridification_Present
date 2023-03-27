@@ -140,8 +140,12 @@ for (evap_data_index in 1:length(evap_sim_files)) {
     yname = "lat"
   )
 }
-
-
+ 
+# a <- brick("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/merra2_tp_mm_med_land.nc")
+# b <- brick("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/test/merra2_tp_mm_mediterranean_2000_2019_25_mean.nc")
+# 
+# plot(a)
+# plot(b)
 # print(nc_open(paste0(PATH_SIM_EVAP, evap_sim_files[[evap_data_index]])))
 # nc_close(paste0(PATH_SIM_EVAP, evap_sim_files[[evap_data_index]]))
 # 
