@@ -12,31 +12,32 @@ library(RcppDE)
 # aridity = PET/P
 # w: omiga (free parameter)
 
-# Fu's equation (the relationship between evaporative and aridity indices)
+# Fu's equation (the relationship between evaporative and aridity indices) steady-state condition
 evaporative <- function(aridity, w) {
   return(1 + (aridity) - (1 + (aridity) ^ w) ^ (1 / w))
 }
+
 
 # Define evaporative index, aridity index and omega vectors
 evaporative_vec <- c()
 aridity_vec <- c()
 w_vec <- c()
 
-# Define bins between [1, 4]
+
+# Define bins between [1, 4] (discretizing the Budyko space)
 bins <- data.frame()
 w_dummie <- 4
 
 while(w_dummie > 1.40) {#1.4142136
   
-  for (A in seq(0, 5, by = 0.25)) {
+  for (A in seq(0, 100, by = 0.25)) {
     evaporative_vec <-
       append(evaporative_vec, evaporative(aridity = A, w = logb(4, base = w_dummie)))
     aridity_vec <- append(aridity_vec, A)
   }
   w_vec <- rep(logb(4, base = w_dummie), length(seq(0, 5, by = 0.25)))
   
-  fu <-
-    data.frame(cbind(aridity_vec, evaporative_vec, w_vec))
+  fu <- data.frame(cbind(aridity_vec, evaporative_vec, w_vec))
   
   evaporative_vec <- c()
   aridity_vec <- c()
@@ -49,73 +50,74 @@ while(w_dummie > 1.40) {#1.4142136
 
 names(bins) <- c("aridity", "evaporative", "Omega")
 bins$Omega <- round(bins$Omega, digits = 2)
-Omega_bins <- unique(bins$Omega)
 
 
-
-# # test using random numbers
-# # random aridity index
-# arid_index_dummie <-
-#   runif(100, min = 0.5, max = 5)         # min = 3, max = 5
-# 
-# # random evaporative index
-# evap_index_dummie <-
-#   runif(100, min = 0.0, max = 1)   # min = 0.25, max = 0.3
-# 
-# combined_data <- data.frame(cbind(arid_index_dummie, evap_index_dummie))
+# define omega values of each bin on Budyko space
+Omega_bins <- c(unique(bins$Omega))
 
 
-path_load <- "../shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/"
-
+# load aridity and evaporative indices from preprocess  
+path_load <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/"
 budyko_data <- readRDS(file = paste0(path_load, "budyko_data.rds"))
-
-
 unique(budyko_data$combination)
 
+# check the data
 budyko_data[arid_index == Inf, arid_index := NA]
-budyko_data[arid_index > 20, arid_index := 20]
+budyko_data[arid_index == max(arid_index, na.rm = T), ]
+summary(budyko_data$arid_index)
+# budyko_data[arid_index > 20, arid_index := 20]
 
 budyko_data[evap_index == Inf, evap_index := NA]
-budyko_data[evap_index > 20, evap_index := 20]
-
-budyko_data <- na.omit(budyko_data)
-
-summary(budyko_data$arid_index)
+budyko_data[evap_index == max(evap_index, na.rm = T), ]
 summary(budyko_data$evap_index)
-budyko_data[2500, ]
+# budyko_data[evap_index > 20, evap_index := 20]
 
+# remove na value
+budyko_data <- na.omit(budyko_data)
 
 budyko_data
 
-
-
-#--- or this ---#
+# add Koppen Geiger (KG) classes to the budyko_data 
 # convert the Budyko dataframe and into the shapefile
 budyko_shape_file <- st_as_sf(budyko_data,
                               coords = c("x", "y"), 
                               crs = 4326)
-# read koppen geiger raster
+# read Koppen Geiger raster
 kg_raster <- raster("~/MED_Aridification_Present/data/archive/KG_classes/Beck_KG_present_mediterranian_025.tif")
 
+# extract the KG classes
+kg_extract <-
+  raster::extract(
+    kg_raster,
+    budyko_shape_file,
+    method = 'simple',
+    buffer = NULL,
+    small = FALSE,
+    cellnumbers = FALSE,
+    fun = NULL,
+    na.rm = TRUE,
+    layer,
+    nl,
+    df = FALSE,
+    factors = FALSE
+  )
 
-kg_extract <- raster::extract(kg_raster, budyko_shape_file,method='simple', buffer=NULL, small=FALSE, cellnumbers=FALSE, 
-                            fun=NULL, na.rm=TRUE, layer, nl, df=FALSE, factors=FALSE)
+# add KG classes to the shape file
+budyko_shape_file$KG <- kg_extract
+# budyko_KG_data <- data.table(budyko_shape_file)
 
-budyko_shape_file$KG <-kg_extract
-budyko_KG_data <- data.table(budyko_shape_file)
-# visualization
-# color = factor(Omega)
-
+# add KG classes to the budyko data frame file
+budyko_data$kg_code <- kg_extract
 
 
-
-
-# estimating w (Omega) of the the points
+# estimate the w (Omega) values of the the points (budyko data frame)
+# define a vector to save omega values
 estimated_omega_vec <- c()
 
 for (i in 1:length(budyko_data$arid_index)) {
+  
   # objective function
-  if(budyko_data$arid_index[i] !=0 & budyko_data$evap_index[i] != 0){
+  if(budyko_data$arid_index[i] != 0 & budyko_data$evap_index[i] != 0){
     mae = function(omega) {
       A <- budyko_data$arid_index[i]
       E <- budyko_data$evap_index[i]
@@ -159,25 +161,27 @@ for (i in 1:length(budyko_data$arid_index)) {
   
 }
 
+# add the estimated omega to Budyko data frame budyko_data
+budyko_data$estimated_omega <- estimated_omega_vec
 
-budyko_data$estimated_omega_vec <- estimated_omega_vec
-budyko_data$KG <- budyko_shape_file$KG
 
-med_kg_codes <- c(unique(budyko_data$KG))
+# extract the Koppen Geiger (KG) codes in Mediterranean region and save it to med_kg_codes data frame
+med_kg_codes <- c(unique(budyko_data$kg_code))
 
+# define a data frame (entropy_data_frame) to save entropy values for each KG class
 colume_names = c("entropy", "number", "kg_code")
 entropy_data_frame = data.table(matrix(nrow = length(med_kg_codes), ncol = length(colume_names))) 
 colnames(entropy_data_frame) = colume_names
 
+
+# calculate entropy of points on the Budyko space
 for(kg_ite in 1:length(med_kg_codes)){
   
-  # calculate entropy of points on the Budyko space
   entropy_total <- 0
   
   # calculate the number of each point in the each bin as a table
   freq_tbl <-
-    table(cut(budyko_data[KG == med_kg_codes[kg_ite], estimated_omega_vec], breaks = Omega_bins))
-  
+    table(cut(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega_vec], breaks = Omega_bins))
   
   for(bin_itr in 1:length(freq_tbl)) {
     
@@ -185,24 +189,31 @@ for(kg_ite in 1:length(med_kg_codes)){
       entrpy_dummie <- 0
     } else{
       entrpy_dummie <-
-        (freq_tbl[bin_itr] / length(budyko_data[KG == med_kg_codes[kg_ite], estimated_omega_vec])) * log2(freq_tbl[bin_itr] / length(budyko_data[KG == med_kg_codes[kg_ite], estimated_omega_vec])) * -1
+        (freq_tbl[bin_itr] / length(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega_vec])) * log2(freq_tbl[bin_itr] / length(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega_vec])) * -1
     }
     entropy_total <- entropy_total + entrpy_dummie
   }
   
   entropy_data_frame$entropy[kg_ite] <- entropy_total
   entropy_data_frame$number[kg_ite] <-
-  length(budyko_data[KG == med_kg_codes[kg_ite], estimated_omega_vec])
+  length(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega_vec])
   entropy_data_frame$kg_code[kg_ite] <- med_kg_codes[kg_ite]
   }
   
 entropy_data_frame
+
+# normalize the values of entropy according to the number of points (grids) in each KG class
 entropy_data_frame[, normalized_entropy:= entropy*number/sum(number)]
 
-for (row_num in 1:length(budyko_shape_file$KG)) {
-  
-  budyko_shape_file$entropy[row_num] <- entropy_data_frame[kg_code == budyko_shape_file$KG[row_num], normalized_entropy]
-}
+
+dummie_entropy_data_frame <- merge(budyko_data, entropy_data_frame, by = 'kg_code')
+budyko_data$entropy <- dummie_entropy_data_frame$entropy
+budyko_data$normalized_entropy <- dummie_entropy_data_frame$normalized_entropy
+
+saveRDS(budyko_data, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data.rds")
+saveRDS(bins, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/bins_budyko.rds")
+
+
 
 
 
