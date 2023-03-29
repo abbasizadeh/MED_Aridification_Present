@@ -124,7 +124,7 @@ spatial_weight <- function(x){
 #' Save .nc file
 #'
 #' Function to save data compatible with pRecipe in .nc file
-#'
+#' 
 
 
 save_nc <- function(dummie_nc, nc_out){
@@ -174,6 +174,7 @@ save_nc <- function(dummie_nc, nc_out){
 
 
 #  Function to crop and save nc file (it uses crop_space_time function)
+# by Hossein
 crop_save_nc <- function(link_to_raw_nc,
                          nc_out,
                          var_name,
@@ -202,3 +203,20 @@ crop_save_nc <- function(link_to_raw_nc,
     yname = "lat"
   )
 }
+
+# Function to convert monthly monthly nc to annual
+# by Hossein
+monthly_to_annual <- function(nc_file){
+  
+  dummie_brick <- brick(nc_file)
+  
+  indices <- format(as.Date(names(dummie_brick), format = "X%Y.%m.%d"), format = "%Y")
+  indices <- as.numeric(indices)
+  
+  #sum layers
+  annual_precip <- zApply(dummie_brick, indices, fun = sum)
+  
+  return(annual_precip)
+}
+
+
