@@ -181,3 +181,23 @@ for(e_data in 1:length(evap_sim_dir)) {
   )
   
 }
+
+
+
+KG <- raster("~/MED_Aridification_Present/data/archive/KG_classes/Beck_KG_present_025.tif")
+# crop
+crop_data <-
+  crop_space_time(KG,
+                  STUDY_PERIOD_START,
+                  STUDY_PERIOD_END,
+                  STUDY_AREA)
+
+plot(crop_data)
+# save nc
+writeRaster(
+  crop_data,
+  "~/MED_Aridification_Present/data/archive/KG_classes/Beck_KG_present_mediterranian_025.tif",
+  overwrite = TRUE,
+  format = "GTiff",
+)
+plot(KG)
