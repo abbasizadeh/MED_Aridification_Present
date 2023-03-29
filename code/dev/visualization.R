@@ -1,3 +1,10 @@
+# load global variables and packages
+source("./code/source/global_variables.R")
+
+# load functions
+source('./code/source/functions.R')
+
+
 budyko_data <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data.rds")
 bins <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/bins_budyko.rds")
 library(viridis) 
@@ -19,17 +26,37 @@ ggplot(data = budyko_data) +
 # scale_colour_hue(l = 15, c = 300) +
 
 # 15 26 29 14  0 25  7 27  8  9 18 19 17  4  5  6
+budyko_plot <- list()
+itr <- 1
 
-ggplot(data = budyko_data[kg_code == 15,]) +
-  geom_point( aes(x = arid_index, y = evap_index), size = 0.2) +
-  geom_line(data = bins, aes(x = aridity, y = evaporative, color = factor(Omega))) + 
-  geom_segment(aes(x = 1, xend = 20, y = 1, yend = 1)) +
-  geom_abline(intercept = 0, slope = 1) +
-  labs(x = "Aridity Index [PET/P]", y = "Evaporative Index [E/P]", color = "Omega") +
-  guides(color = guide_legend(override.aes = list(size = 5))) +
-  ylim(c(0, 1.5)) + xlim(c(0, 6)) +
-  facet_wrap(vars(combination)) +
+for(kg in unique(budyko_data$kg_code)){
+  budyko_plot[[itr]] <-  
+    ggplot(data = budyko_data[kg_code == kg, ]) +
+    geom_point(aes(x = arid_index, y = evap_index), size = 0.5, color = "#D55E00") +
+    geom_abline(intercept = 0, slope = 1) +
+    geom_line(data = bins, aes(x = aridity, y = evaporative, color = factor(Omega)), alpha = 0.8) +
+    guides(color = guide_legend(override.aes = list(size = 5))) +
+    labs(x = "Aridity Index [PET/P]", y = "Evaporative Index [E/P]", color = "Omega") +
+    facet_wrap(vars(combination)) 
+ itr = itr + 1 
+}
+
+
+budyko_plot[[1]] +
+  geom_segment(aes(x = 1, xend = 4, y = 1, yend = 1)) +
+  xlim(c(0, 4)) + ylim(c(0, 1.5)) +
   ggtitle("Climate class:  Cfb  Temperate, no dry season, warm summer") 
+
+budyko_plot[[2]] +
+  geom_segment(aes(x = 1, xend = 4, y = 1, yend = 1)) +
+  xlim(c(0, 4)) + ylim(c(0, 1.5)) +
+  ggtitle("Climate class:  Dfb  Cold, no dry season, warm summer") 
+
+
+budyko_plot[[3]] +
+  geom_segment(aes(x = 1, xend = 4, y = 1, yend = 1)) +
+  xlim(c(0, 4)) + ylim(c(0, 1.5)) +
+  ggtitle("Climate class:  ET   Polar, tundra") 
 
 
 
