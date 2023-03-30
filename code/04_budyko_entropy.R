@@ -35,7 +35,7 @@ while(w_dummie > 1.40) {#1.4142136
       append(evaporative_vec, evaporative(aridity = A, w = logb(4, base = w_dummie)))
     aridity_vec <- append(aridity_vec, A)
   }
-  w_vec <- rep(logb(4, base = w_dummie), length(seq(0, 5, by = 0.25)))
+  w_vec <- rep(logb(4, base = w_dummie), length(seq(0, 100, by = 0.25)))
   
   fu <- data.frame(cbind(aridity_vec, evaporative_vec, w_vec))
   
@@ -214,11 +214,12 @@ entropy_data_frame
 entropy_data_frame[, normalized_entropy:= entropy*number/sum(number)]
 
 
-dummie_entropy_data_frame <- merge(budyko_data, entropy_data_frame, by = 'kg_code')
-budyko_data$entropy <- dummie_entropy_data_frame$entropy
-budyko_data$normalized_entropy <- dummie_entropy_data_frame$normalized_entropy
+budyko_data <- merge(budyko_data, entropy_data_frame, by = 'kg_code')
+
+budyko_data[kg_code == 15,]
 
 saveRDS(budyko_data, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data.rds")
+saveRDS(entropy_data_frame, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/entropy_data_frame.rds")
 saveRDS(bins, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/bins_budyko.rds")
 
 
