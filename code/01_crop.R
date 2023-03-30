@@ -184,7 +184,7 @@ for(e_data in 1:length(evap_sim_dir)) {
 
 
 
-KG <- raster("~/MED_Aridification_Present/data/archive/KG_classes/Beck_KG_present_025.tif")
+KG <- raster("~/MED_Aridification_Present/data/archive/Beck_KG_present_025.tif")
 # crop
 crop_data <-
   crop_space_time(KG,

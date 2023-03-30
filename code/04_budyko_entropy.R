@@ -83,7 +83,9 @@ budyko_shape_file <- st_as_sf(budyko_data,
                               coords = c("x", "y"), 
                               crs = 4326)
 # read Koppen Geiger raster
-kg_raster <- raster("~/MED_Aridification_Present/data/archive/KG_classes/Beck_KG_present_mediterranian_025.tif")
+kg_raster <- raster("~/MED_Aridification_Present/data/archive/Beck_KG_present_025.tif")
+
+
 
 # extract the KG classes
 kg_extract <-
@@ -103,12 +105,17 @@ kg_extract <-
   )
 
 # add KG classes to the shape file
+
 budyko_shape_file$KG <- kg_extract
+
 # budyko_KG_data <- data.table(budyko_shape_file)
 
 # add KG classes to the budyko data frame file
 budyko_data$kg_code <- kg_extract
 
+budyko_data[kg_code == 0, kg_code := NA]
+unique(budyko_data$kg_code)
+budyko_data <- na.omit(budyko_data)
 
 # estimate the w (Omega) values of the the points (budyko data frame)
 # define a vector to save omega values
@@ -181,7 +188,7 @@ for(kg_ite in 1:length(med_kg_codes)){
   
   # calculate the number of each point in the each bin as a table
   freq_tbl <-
-    table(cut(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega_vec], breaks = Omega_bins))
+    table(cut(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega], breaks = Omega_bins))
   
   for(bin_itr in 1:length(freq_tbl)) {
     
@@ -189,14 +196,15 @@ for(kg_ite in 1:length(med_kg_codes)){
       entrpy_dummie <- 0
     } else{
       entrpy_dummie <-
-        (freq_tbl[bin_itr] / length(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega_vec])) * log2(freq_tbl[bin_itr] / length(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega_vec])) * -1
+        (freq_tbl[bin_itr] / length(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega])) * 
+        log2(freq_tbl[bin_itr] / length(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega])) * -1
     }
     entropy_total <- entropy_total + entrpy_dummie
   }
   
   entropy_data_frame$entropy[kg_ite] <- entropy_total
   entropy_data_frame$number[kg_ite] <-
-  length(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega_vec])
+  length(budyko_data[kg_code == med_kg_codes[kg_ite], estimated_omega])
   entropy_data_frame$kg_code[kg_ite] <- med_kg_codes[kg_ite]
   }
   
