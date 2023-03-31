@@ -172,40 +172,21 @@ save_nc <- function(dummie_nc, nc_out){
 }
 
 
-
-#  Function to crop and save nc file (it uses crop_space_time function)
-# by Hossein
-crop_save_nc <- function(link_to_raw_nc,
-                         nc_out,
-                         var_name,
-                         var_unit,
-                         long_name) {
-  # obs precipitation data
-  nc_to_brick <- brick(link_to_raw_nc)
-  
-  # crop
-  crop_data <-
-    crop_space_time(nc_to_brick,
-                    STUDY_PERIOD_START,
-                    STUDY_PERIOD_END,
-                    STUDY_AREA)
-  
-  # save nc
-  writeRaster(
-    crop_data,
-    nc_out,
-    overwrite = TRUE,
-    format = "CDF",
-    varname = var_name,
-    varunit = var_unit,
-    longname = long_name,
-    xname = "lon",
-    yname = "lat"
-  )
+# mask land
+landmask <- function(x, keep_land = TRUE){
+  lsmask <- raster("~/shared/data/geodata/masks/final/land_ocean/mask_land_ocean_025.nc")
+  inv_mask <- !keep_land
+  mask_ext <- extent(lsmask)
+  x_ext <- extent(x)
+  if (x_ext < mask_ext){
+    lsmask <- crop(lsmask, x_ext)
+  }
+  dummie <- mask(x, lsmask, inverse = inv_mask)
+  return(dummie)
 }
 
 # Function to convert monthly monthly nc to annual
-# by Hossein
+# Z is not in time format
 monthly_to_annual <- function(nc_file){
   
   dummie_brick <- brick(nc_file)

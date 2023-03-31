@@ -5,7 +5,7 @@ source("./code/source/global_variables.R")
 source('./code/source/functions.R')
 
 
-budyko_data <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data.rds")
+budyko_data <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data_04.rds")
 bins <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/bins_budyko.rds")
 library(viridis) 
 

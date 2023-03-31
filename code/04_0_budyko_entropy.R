@@ -29,20 +29,20 @@ bins <- data.frame()
 w_dummie <- 4
 
 while(w_dummie > 1.40) {#1.4142136
-  
+
   for (A in seq(0, 100, by = 0.25)) {
     evaporative_vec <-
       append(evaporative_vec, evaporative(aridity = A, w = logb(4, base = w_dummie)))
     aridity_vec <- append(aridity_vec, A)
   }
   w_vec <- rep(logb(4, base = w_dummie), length(seq(0, 100, by = 0.25)))
-  
+
   fu <- data.frame(cbind(aridity_vec, evaporative_vec, w_vec))
-  
+
   evaporative_vec <- c()
   aridity_vec <- c()
   w_vec <- c()
-  
+
   bins <- rbind(bins, fu)
   w_dummie <- w_dummie - 0.25857864 # logb(4, base = 4-(10*0.25857864)) = 4;
 }
@@ -58,22 +58,19 @@ Omega_bins <- c(unique(bins$Omega))
 
 # load aridity and evaporative indices from preprocess  
 path_load <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/"
-budyko_data <- readRDS(file = paste0(path_load, "budyko_data.rds"))
+budyko_data <- readRDS(file = paste0(path_load, "budyko_data_03.rds"))
 unique(budyko_data$combination)
 
+
 # check the data
-budyko_data[arid_index == Inf, arid_index := NA]
 budyko_data[arid_index == max(arid_index, na.rm = T), ]
 summary(budyko_data$arid_index)
-# budyko_data[arid_index > 20, arid_index := 20]
-
-budyko_data[evap_index == Inf, evap_index := NA]
 budyko_data[evap_index == max(evap_index, na.rm = T), ]
 summary(budyko_data$evap_index)
-# budyko_data[evap_index > 20, evap_index := 20]
+
 
 # remove na value
-budyko_data <- na.omit(budyko_data)
+# budyko_data <- na.omit(budyko_data)
 
 budyko_data
 
@@ -86,22 +83,11 @@ budyko_shape_file <- st_as_sf(budyko_data,
 kg_raster <- raster("~/MED_Aridification_Present/data/archive/Beck_KG_present_025.tif")
 
 
-
 # extract the KG classes
 kg_extract <-
-  raster::extract(
-    kg_raster,
-    budyko_shape_file,
-    method = 'simple',
-    buffer = NULL,
-    small = FALSE,
-    cellnumbers = FALSE,
-    fun = NULL,
-    na.rm = TRUE,
-    layer,
-    nl,
-    df = FALSE,
-    factors = FALSE
+  raster::extract(kg_raster, budyko_shape_file, method = 'simple', buffer = NULL,
+    small = FALSE, cellnumbers = FALSE, fun = NULL, na.rm = TRUE, layer, nl,
+    df = FALSE, factors = FALSE
   )
 
 # add KG classes to the shape file
@@ -115,7 +101,7 @@ budyko_data$kg_code <- kg_extract
 
 budyko_data[kg_code == 0, kg_code := NA]
 unique(budyko_data$kg_code)
-budyko_data <- na.omit(budyko_data)
+# budyko_data <- na.omit(budyko_data)
 
 # estimate the w (Omega) values of the the points (budyko data frame)
 # define a vector to save omega values
@@ -124,7 +110,11 @@ estimated_omega_vec <- c()
 for (i in 1:length(budyko_data$arid_index)) {
   
   # objective function
-  if(budyko_data$arid_index[i] != 0 & budyko_data$evap_index[i] != 0){
+  if(budyko_data$arid_index[i] != 0 & 
+     budyko_data$evap_index[i] != 0 & 
+     !is.na(budyko_data$arid_index[i]) & 
+     !is.na(budyko_data$evap_index[i])){
+    
     mae = function(omega) {
       A <- budyko_data$arid_index[i]
       E <- budyko_data$evap_index[i]
@@ -136,32 +126,16 @@ for (i in 1:length(budyko_data$arid_index)) {
     
     # DEoptim setting
     decntr <- DEoptim.control(
-      VTR = 0,
-      strategy = 2,
-      bs = FALSE,
-      NP = 10,
-      itermax = itermaxW,
-      CR = 0.25,
-      F = 0.7,
-      trace = FALSE,
-      initialpop = NULL,
-      storepopfrom = itermaxW + 1,
-      storepopfreq = 1,
-      p = 0.2,
-      c = 0,
-      reltol = sqrt(.Machine$double.eps),
-      steptol = itermaxW
-    )
+      VTR = 0, strategy = 2, bs = FALSE, NP = 10, itermax = itermaxW, CR = 0.25, 
+      F = 0.7, trace = FALSE, initialpop = NULL, storepopfrom = itermaxW + 1, 
+      storepopfreq = 1, p = 0.2, c = 0, reltol = sqrt(.Machine$double.eps), steptol = itermaxW)
     
-    u <- DEoptim(
-      lower = 1,
-      upper = 4,
-      fn = mae,
-      control = decntr
-    )
+    u <- DEoptim(lower = 1, upper = 4, fn = mae, control = decntr)
     estimated_omega_vec <-
       append(estimated_omega_vec, as.numeric(u$optim$bestmem))
+    
   }else{
+    
     estimated_omega_vec <-
       append(estimated_omega_vec, NA)
   }
@@ -208,7 +182,8 @@ for(kg_ite in 1:length(med_kg_codes)){
   entropy_data_frame$kg_code[kg_ite] <- med_kg_codes[kg_ite]
   }
   
-entropy_data_frame
+
+entropy_data_frame <- na.omit(entropy_data_frame)
 
 # normalize the values of entropy according to the number of points (grids) in each KG class
 entropy_data_frame[, normalized_entropy:= entropy*number/sum(number)]
@@ -216,13 +191,44 @@ entropy_data_frame[, normalized_entropy:= entropy*number/sum(number)]
 
 budyko_data <- merge(budyko_data, entropy_data_frame, by = 'kg_code')
 
-budyko_data[kg_code == 15,]
+budyko_data[kg_code == 0,]
 
-saveRDS(budyko_data, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data.rds")
+saveRDS(budyko_data, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data_04.rds")
 saveRDS(entropy_data_frame, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/entropy_data_frame.rds")
 saveRDS(bins, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/bins_budyko.rds")
 
 
 
 
-
+# budyko_data[, entropy_shanon_aridity := (entropy.empirical(arid_index, unit = "log2")), 
+#             by = kg_code]
+# 
+# budyko_data[, entropy_shanon_evaporative := entropy.empirical(evap_index, unit = "log2"), 
+#             by = kg_code]
+# 
+# total_length <- length(budyko_data$kg_code)
+# budyko_data[, entropy_shanon_aridity := entropy_shanon_aridity*length(arid_index)*length(arid_index)/total_length,
+#             by = kg_code]
+# 
+# unique(budyko_data$entropy_shanon_aridity)
+# unique(budyko_data$entropy_shanon_evaporative)
+# 
+# plot(unique(budyko_data$entropy_shanon_aridity),unique(budyko_data$entropy_shanon_evaporative))
+# 
+# budyko_data[, length(arid_index), by = kg_code]
+# 
+# ggplot(data = b_test, aes(x = (evap_index))) + geom_density(alpha=.2, fill="#FF6666") 
+# 
+# ggplot(data = budyko_data, aes(x = evap_index)) +  
+#   geom_histogram(aes(y=..density..), binwidth=.1, colour="black", fill="white") +  
+#   geom_density(alpha=.2, fill="#FF6666") + 
+#   facet_wrap(vars(factor(kg_code)))
+# 
+# b_test <- budyko_data[arid_index < 5,]
+# 
+# ggplot(data = b_test, aes(x = evap_index)) +  
+#   geom_histogram(aes(y=..density..), binwidth=.1, colour="black", fill="white") +  
+#   geom_density(alpha=.2, fill="#FF6666") + 
+#   facet_wrap(vars(factor(kg_code)))
+# 
+# 
