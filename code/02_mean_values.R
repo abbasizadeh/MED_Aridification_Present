@@ -34,25 +34,13 @@ for (precip_data_index in 1:length(precip_obs_files)) {
   new_name <-
     with(p_names_table, paste(V1, V2, V3, V4, V5, V6, V7, V8, sep = "_"))
   
-  # defining the arguments of save function
-  long_name <- "precipitation"
-  var_name <- "tp"
-  var_unit <- "mm"
-  save_dir <- paste0(PATH_OUTFILES, "/obs/budyko/budyko_precip/")
+  save_dir <- paste0(PATH_OUTFILES, "/obs/budyko/budyko_precip/", new_name)
+  dummie_brick@z[[1]] <- as.Date("2019-12-31", format = "%Y-%m-%d")
+  save_nc(dummie_brick, paste0(PATH_OUTFILES, "/obs/budyko/budyko_precip/", new_name))
   
-  # save nc
-  writeRaster(
-    dummie_brick,
-    paste0(save_dir, new_name),
-    overwrite = TRUE,
-    format = "CDF",
-    varname = var_name,
-    varunit = var_unit,
-    longname = long_name,
-    xname = "lon",
-    yname = "lat"
-  )
 }
+
+
 
 # calculation of mean annual simulation precipitation for the whole period 2000-2019
 for (precip_data_index in 1:length(precip_sim_files)) {
@@ -74,25 +62,16 @@ for (precip_data_index in 1:length(precip_sim_files)) {
   new_name <-
     with(p_names_table, paste(V1, V2, V3, V4, V5, V6, V7, V8, sep = "_"))
   
-  # defining the arguments of save function
-  long_name <- "precipitation"
-  var_name <- "tp"
-  var_unit <- "mm"
   save_dir <- paste0(PATH_OUTFILES, "/sim/budyko/budyko_precip/")
   
-  # save nc
-  writeRaster(
-    dummie_brick,
-    paste0(save_dir, new_name),
-    overwrite = TRUE,
-    format = "CDF",
-    varname = var_name,
-    varunit = var_unit,
-    longname = long_name,
-    xname = "lon",
-    yname = "lat"
-  )
+  dummie_brick@z[[1]] <- as.Date("2019-12-31", format = "%Y-%m-%d")
+  save_nc(dummie_brick, paste0(PATH_OUTFILES, "/sim/budyko/budyko_precip/test/", new_name))
+  
+ 
 }
+
+
+
 
 # calculation of mean annual simulation evaporation for the whole period 2000-2019
 for (evap_data_index in 1:length(evap_sim_files)) {
@@ -114,33 +93,13 @@ for (evap_data_index in 1:length(evap_sim_files)) {
   new_name <-
     with(e_names_table, paste(V1, V2, V3, V4, V5, V6, V7, V8, sep = "_"))
   
-  # defining the arguments of save function
-  
-  if(e_names_table$V2 == "e"){
-    long_name <- "evaporation"
-    var_name <- "e"
-  }else{
-    long_name <- "potential evaporation"
-    var_name <- "pet"
-  }
-  
-  var_unit <- "mm"
   save_dir <- paste0(PATH_OUTFILES, "/sim/budyko/budyko_evap/test/")
-  
-  # save nc
-  writeRaster(
-    dummie_brick,
-    paste0(save_dir, new_name),
-    overwrite = TRUE,
-    format = "CDF",
-    varname = var_name,
-    varunit = var_unit,
-    longname = long_name,
-    xname = "lon",
-    yname = "lat"
-  )
+  dummie_brick@z[[1]] <- as.Date("2019-12-31", format = "%Y-%m-%d")
+  save_nc(dummie_brick, paste0(PATH_OUTFILES, "/sim/budyko/budyko_evap/test/", new_name))
+
 }
- 
+
+
 # a <- brick("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/merra2_tp_mm_med_land.nc")
 # b <- brick("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/test/merra2_tp_mm_mediterranean_2000_2019_25_mean.nc")
 # 

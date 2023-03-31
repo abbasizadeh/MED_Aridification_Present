@@ -5,10 +5,10 @@ source("./code/source/global_variables.R")
 source('./code/source/functions.R')
 
 
-precip_sim_files <- list.files("../shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/test")
-precip_obs_files <- list.files("../shared/data_projects/med_datasets/2000_2019_data/obs/budyko/budyko_precip")
+precip_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/test")
+precip_obs_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/obs/budyko/budyko_precip")
 
-evap_sim_files <- list.files("../shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap/test")
+evap_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap/test")
 
 precip_sim_files[2]
 evap_sim_files[5]
@@ -23,8 +23,9 @@ p_names_table <- rbind(p_names_table, read.table(text = precip_obs_files, sep = 
 p_columns = c("p_raster_name", "raster") 
 p_data_frame = data.frame(matrix(nrow = length(precip_sim_files) + length(precip_obs_files), ncol = length(p_columns))) 
 colnames(p_data_frame) = p_columns
-precip_sim_files_dir <- "../shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/test/"
-precip_obs_files_dir <- "../shared/data_projects/med_datasets/2000_2019_data/obs/budyko/budyko_precip/"
+precip_sim_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/test/"
+precip_obs_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/obs/budyko/budyko_precip/"
+
 
 # save precipitation data in p_data_frame data frame
 for(name in 1:length(precip_sim_files)){
@@ -36,7 +37,7 @@ itr_start <- length(precip_sim_files) + 1
 itr_end <- length(precip_sim_files) + length(precip_obs_files)
 for(name in  itr_start:itr_end){
   p_data_frame$p_raster_name[name] <- paste0("p_", p_names_table$V1[name])
-  index <- name - 3
+  index <- name - 4
   p_data_frame$raster[name] <- list(raster(paste0(precip_obs_files_dir, precip_obs_files[[index]])))
 }
 
@@ -52,7 +53,7 @@ evap_names_table <- read.table(text = evap_sim_files, sep = "_", as.is = TRUE)
 e_columns = c("e_raster_name", "raster") 
 e_data_frame = data.frame(matrix(nrow = length(evap_sim_files), ncol = length(e_columns))) 
 colnames(e_data_frame) = e_columns
-e_files_dir <- "../shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap/test/"
+e_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap/test/"
 
 
 for(name in 1:length(evap_sim_files)){
@@ -119,11 +120,11 @@ for(p_itr in 1:length(p_data_frame$p_raster_name)) {
         p_data_frame$p_raster_name[p_itr]
       ))
     # data from era5 has been removed due to problem in pet_era5 (negative numbers)
-    if (startsWith(e_data_frame$e_raster_name[e_itr], "pet") & (e_data_frame$e_raster_name[e_itr]!= "pet_era5")) {
+    if (startsWith(e_data_frame$e_raster_name[e_itr], "pet")) { #  & (e_data_frame$e_raster_name[e_itr]!= "pet_era5")
       
       arid_index_data_frame <- rbind(arid_index_data_frame, dummie)
     
-      } else if(startsWith(e_data_frame$e_raster_name[e_itr], "e_") & (e_data_frame$e_raster_name[e_itr]!= "e_era5")){
+      } else if(startsWith(e_data_frame$e_raster_name[e_itr], "e_")){ #  & (e_data_frame$e_raster_name[e_itr]!= "e_era5")
       
         evap_index_data_frame <- rbind(evap_index_data_frame, dummie)
     }
@@ -146,6 +147,9 @@ names(evap_index_data_frame) <- c("x", "y", "evap_index", "evap_comb")
 # checking the values
 unique(evap_index_data_frame$evap_comb)
 evap_index_data_frame[evap_index == Inf, evap_index := NA]
+evap_index_data_frame[evap_index == -Inf, evap_index := NA]
+summary(evap_index_data_frame$evap_index)
+
 plot(evap_index_data_frame$evap_index, type = "l")
 
 plot(evap_index_data_frame[evap_comb == "e_era5_p_era5" ]$evap_index, type = "l") # e_era5 is removed
@@ -163,9 +167,13 @@ plot(evap_index_data_frame[evap_comb == "e_gleam_p_ncep-ncar" ]$evap_index, type
 # arid_index_data_frame[arid_index < 0, arid_index := arid_index*-1]
 # arid_index_data_frame[arid_index >= 20 | arid_index < 0, arid_index := NA]
 # length(which(is.na(arid_index_data_frame$arid_index)))
-
+summary(arid_index_data_frame$arid_index)
+arid_index_data_frame[arid_index == Inf, arid_index := NA]
 arid_index_data_frame[arid_index == -Inf, arid_index := NA]
-arid_index_data_frame[arid_index < 0 , arid_index := arid_index * -1]
+
+summary(arid_index_data_frame$arid_index)
+arid_index_data_frame[arid_index < 0 , arid_index := NA]
+summary(arid_index_data_frame$arid_index)
 # arid_index_data_frame[arid_index > 100 , arid_index := 20]
 min(arid_index_data_frame$arid_index, na.rm = T)
 
@@ -176,19 +184,20 @@ plot(arid_index_data_frame[arid_comb == "pet_gleam_p_merra2", arid_index], type 
 plot(arid_index_data_frame[arid_comb == "pet_gleam_p_era5", arid_index], type = "l")
 plot(arid_index_data_frame[arid_comb == "pet_terraclimate_p_merra2", arid_index], type = "l")
 plot(arid_index_data_frame[arid_comb == "pet_terraclimate_p_era5", arid_index], type = "l")
-plot(arid_index_data_frame[arid_comb == "pet_era5_p_merra2", arid_index], type = "l", ylim = c(-20, 20)) # pet_era5 is removed
+plot(arid_index_data_frame[arid_comb == "pet_era5_p_merra2", arid_index], type = "l") # pet_era5 is removed
 plot(arid_index_data_frame[arid_comb == "pet_gleam_p_ncep-ncar", arid_index], type = "l")
 plot(arid_index_data_frame[arid_comb == "pet_terraclimate_p_ncep-ncar", arid_index], type = "l")
 plot(arid_index_data_frame[arid_comb == "pet_era5_p_ncep-ncar", arid_index], type = "l") # pet_era5 is removed
+plot(arid_index_data_frame[arid_comb == "pet_terraclimate_p_terraclimate", arid_index], type = "l") # pet_era5 is removed
 
 
 
 budyko_data <- cbind(arid_index_data_frame,evap_index_data_frame[, 3])
 budyko_data <- budyko_data[ , c("x", "y", "arid_index", "evap_index", "arid_comb")]
 names(budyko_data) <- c("x", "y", "arid_index", "evap_index", "combination")
-path_save <- "../shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/"
+path_save <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/"
 
-saveRDS(object = budyko_data, file = paste0(path_save, "budyko_data.rds"))
+saveRDS(object = budyko_data, file = paste0(path_save, "budyko_data_03.rds"))
 # saveRDS(object = evap_index_data_frame, file = paste0(path_save, "evaporative_index.rds"))
 
 
