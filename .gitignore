@@ -4,4 +4,10 @@
 .Ruserdata
 /data/*
 /results/*
+<<<<<<< source
 
+=======
+/data/archive/*
+/data/experiments/*
+/data/raw/*
+>>>>>>> main
