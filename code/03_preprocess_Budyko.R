@@ -5,10 +5,10 @@ source("./code/source/global_variables.R")
 source('./code/source/functions.R')
 
 
-precip_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/test")
+precip_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip")
 precip_obs_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/obs/budyko/budyko_precip")
 
-evap_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap/test")
+evap_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap")
 
 precip_sim_files[2]
 evap_sim_files[5]
@@ -23,7 +23,7 @@ p_names_table <- rbind(p_names_table, read.table(text = precip_obs_files, sep = 
 p_columns = c("p_raster_name", "raster") 
 p_data_frame = data.frame(matrix(nrow = length(precip_sim_files) + length(precip_obs_files), ncol = length(p_columns))) 
 colnames(p_data_frame) = p_columns
-precip_sim_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/test/"
+precip_sim_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/"
 precip_obs_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/obs/budyko/budyko_precip/"
 
 
@@ -53,7 +53,7 @@ evap_names_table <- read.table(text = evap_sim_files, sep = "_", as.is = TRUE)
 e_columns = c("e_raster_name", "raster") 
 e_data_frame = data.frame(matrix(nrow = length(evap_sim_files), ncol = length(e_columns))) 
 colnames(e_data_frame) = e_columns
-e_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap/test/"
+e_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap/"
 
 
 for(name in 1:length(evap_sim_files)){

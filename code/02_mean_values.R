@@ -5,13 +5,13 @@ source("./code/source/global_variables.R")
 source('./code/source/functions.R')
 
 
-precip_obs_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/obs/precip/test")
-precip_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/precip/test")
-evap_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/evap/test")
+precip_obs_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/obs/precip")
+precip_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/precip")
+evap_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/evap")
 
-PATH_OBS_PRECIP <- "~/shared/data_projects/med_datasets/2000_2019_data/obs/precip/test/"
-PATH_SIM_PRECIP <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/precip/test/"
-PATH_SIM_EVAP <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/evap/test/"
+PATH_OBS_PRECIP <- "~/shared/data_projects/med_datasets/2000_2019_data/obs/precip/"
+PATH_SIM_PRECIP <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/precip/"
+PATH_SIM_EVAP <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/evap/"
 
 
 # calculation of mean annual observed precipitation for the whole period 2000-2019
@@ -41,7 +41,6 @@ for (precip_data_index in 1:length(precip_obs_files)) {
 }
 
 
-
 # calculation of mean annual simulation precipitation for the whole period 2000-2019
 for (precip_data_index in 1:length(precip_sim_files)) {
   
@@ -65,7 +64,7 @@ for (precip_data_index in 1:length(precip_sim_files)) {
   save_dir <- paste0(PATH_OUTFILES, "/sim/budyko/budyko_precip/")
   
   dummie_brick@z[[1]] <- as.Date("2019-12-31", format = "%Y-%m-%d")
-  save_nc(dummie_brick, paste0(PATH_OUTFILES, "/sim/budyko/budyko_precip/test/", new_name))
+  save_nc(dummie_brick, paste0(PATH_OUTFILES, "/sim/budyko/budyko_precip/", new_name))
   
  
 }
@@ -93,12 +92,11 @@ for (evap_data_index in 1:length(evap_sim_files)) {
   new_name <-
     with(e_names_table, paste(V1, V2, V3, V4, V5, V6, V7, V8, sep = "_"))
   
-  save_dir <- paste0(PATH_OUTFILES, "/sim/budyko/budyko_evap/test/")
+  save_dir <- paste0(PATH_OUTFILES, "/sim/budyko/budyko_evap/")
   dummie_brick@z[[1]] <- as.Date("2019-12-31", format = "%Y-%m-%d")
-  save_nc(dummie_brick, paste0(PATH_OUTFILES, "/sim/budyko/budyko_evap/test/", new_name))
+  save_nc(dummie_brick, paste0(PATH_OUTFILES, "/sim/budyko/budyko_evap/", new_name))
 
 }
-
 
 # a <- brick("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/merra2_tp_mm_med_land.nc")
 # b <- brick("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/test/merra2_tp_mm_mediterranean_2000_2019_25_mean.nc")

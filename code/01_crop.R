@@ -10,14 +10,14 @@ source('./code/source/functions.R')
 
 
 # read obs precipitaion files
-obs_precip <- list.files(path = "../shared/data/obs/precip/raw/",
+obs_precip <- list.files(path = "~/shared/data/obs/precip/raw/",
                          full.names = T)
 obs_precip
 
 # find the directory of required obs precip data in the obs_precip
 index_obs_precip <- c()
 for (dir in 1:length(obs_precip)) {
-  if (grepl("ghcn|em-earth|chirps|cmorph|gmp-im|persiann|gpcc", obs_precip[dir]) &
+  if (grepl("em-earth|chirps|cmorph|gmp-im|persiann|gpcc", obs_precip[dir]) &
       grepl("monthly", obs_precip[dir]) &
       grepl("land", obs_precip)[dir]){
     index_obs_precip <- append(index_obs_precip, dir)
@@ -56,14 +56,14 @@ for (p_data in 1:length(precip_obs_dir)) {
                     STUDY_PERIOD_END,
                     STUDY_AREA)
   
-  save_nc(crop_data, paste0(PATH_OUTFILES, "/obs/precip/test/",new_name))
+  save_nc(crop_data, paste0(PATH_OUTFILES, "/obs/precip/",new_name))
 }
 
 
 
 
 # sim precip files
-sim_precip <- list.files(path = "../shared/data/sim/precip/raw/",
+sim_precip <- list.files(path = "~/shared/data/sim/precip/raw/",
                          full.names = T)
 sim_precip
 
@@ -110,7 +110,7 @@ for(p_data in 1:length(precip_sim_dir)) {
                     STUDY_PERIOD_END,
                     STUDY_AREA)
   
-  save_nc(crop_data, paste0(PATH_OUTFILES, "/sim/precip/test/",new_name))
+  save_nc(crop_data, paste0(PATH_OUTFILES, "/sim/precip/",new_name))
   
 }
 
@@ -164,7 +164,7 @@ for(e_data in 1:length(evap_sim_dir)) {
                     STUDY_PERIOD_END,
                     STUDY_AREA)
   
-  save_nc(crop_data, paste0(PATH_OUTFILES, "/sim/evap/test/",new_name))
+  save_nc(crop_data, paste0(PATH_OUTFILES, "/sim/evap/",new_name))
   
 }
 
