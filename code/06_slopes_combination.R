@@ -7,8 +7,8 @@ source('./code/source/functions.R')
 
 
 #reading the p-e files 
-p_minus_e <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/p_minus_e/test/",full.names = T)
-save_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/slopes_p_minus_e/test/"
+p_minus_e <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/p_minus_e/",full.names = T)
+save_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/slopes_p_minus_e/"
 
 
 # calculation of slopes for the nc file

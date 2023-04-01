@@ -4,13 +4,13 @@ source("./code/source/global_variables.R")
 # load functions
 source('./code/source/functions.R')
 
-save_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/p_minus_e/test"
+save_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/p_minus_e"
 
 
-precip_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/precip/test")
-precip_obs_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/obs/precip/test")
+precip_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/precip")
+precip_obs_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/obs/precip")
 
-evap_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/evap/test")
+evap_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/evap")
 
 precip_sim_files
 evap_sim_files
@@ -25,8 +25,8 @@ p_names_table <- rbind(p_names_table, read.table(text = precip_obs_files, sep = 
 p_columns = c("p_raster_name", "raster") 
 p_data_frame = data.frame(matrix(nrow = length(precip_sim_files) + length(precip_obs_files), ncol = length(p_columns))) 
 colnames(p_data_frame) = p_columns
-precip_sim_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/precip/test/"
-precip_obs_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/obs/precip/test/"
+precip_sim_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/precip/"
+precip_obs_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/obs/precip/"
 
 
 # save precipitation data in p_data_frame data frame
@@ -55,7 +55,7 @@ evap_names_table <- read.table(text = evap_sim_files, sep = "_", as.is = TRUE)
 e_columns <- c("e_raster_name", "raster") 
 e_data_frame <- data.frame(matrix(nrow = length(evap_sim_files), ncol = length(e_columns))) 
 colnames(e_data_frame) = e_columns
-e_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/evap/test/"
+e_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/evap/"
 
 
 for(name in 1:length(evap_sim_files)){
@@ -71,7 +71,7 @@ e_data_frame
 # ?calc()
 
 
-save_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/p_minus_e/test/"
+save_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/p_minus_e/"
 
 # ghcn has problem
 for(p_itr in 1:length(p_data_frame$p_raster_name)) {
@@ -99,3 +99,4 @@ for(p_itr in 1:length(p_data_frame$p_raster_name)) {
     
   }
 }
+

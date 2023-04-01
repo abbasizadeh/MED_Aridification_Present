@@ -80,8 +80,8 @@ budyko_shape_file <- st_as_sf(budyko_data,
                               coords = c("x", "y"), 
                               crs = 4326)
 # read Koppen Geiger raster
-kg_raster <- raster("~/MED_Aridification_Present/data/archive/Beck_KG_present_025.tif")
-
+kg_raster <- raster("~/shared/data_projects/med_datasets/2000_2019_data/KG_classes/Beck_KG_present_025.tif")
+#~/github_projects/MED_Aridification_Present/data/archive/KG_classes
 
 # extract the KG classes
 kg_extract <-
