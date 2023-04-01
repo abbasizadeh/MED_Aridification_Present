@@ -9,7 +9,7 @@ slope_budyko_data <-
   readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/slope_budyko_data_07.rds")
 
 
-bar_plot_data <- unique(slope_budyko_data[, .(kg_code, entropy, normalized_entropy)])
+bar_plot_data <- unique(slope_budyko_data[, .(kg_code, entropy, normalized_entropy, mutual_information)])
 
 p1 <- ggplot(data = slope_budyko_data) + 
         geom_boxplot(aes(x = slope, y = factor(kg_code))) + 
@@ -44,6 +44,25 @@ p2 <- ggplot() +
   )
 
 plot_grid(p1, p2, ncol = 2, align = "h", rel_widths = c(3, 1)) 
+
+
+p3 <- ggplot() +
+  geom_col(data = bar_plot_data, aes(y = factor(kg_code), x = mutual_information)) +
+  scale_x_reverse() +
+  scale_y_discrete(position = "right") +
+  theme(
+    axis.title.y = element_blank(),
+    # axis.text.x = element_blank(),
+    # axis.ticks.x = element_blank(),
+    axis.line   = element_blank(),
+    panel.border = element_blank(),
+    axis.text = element_text(size = 10),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+  )
+
+plot_grid(p1, p3, ncol = 2, align = "h", rel_widths = c(3, 1))
+
 
 ## Figures
 to_plot_sf <- slope_budyko_data[, .(x, y, normalized_entropy)] %>% 

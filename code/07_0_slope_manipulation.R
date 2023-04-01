@@ -5,11 +5,10 @@ source("./code/source/global_variables.R")
 source('./code/source/functions.R')
 
 path_slope_files <- ("~/shared/data_projects/med_datasets/2000_2019_data/slopes_p_minus_e/")
-budyko_data <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data_04.rds")
+budyko_data <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data_04_1.rds")
 save_dir <-  "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/"
 
 
-head(budyko_data)
 
 unique(budyko_data$combination)
 slope_files <- list.files(path_slope_files)
