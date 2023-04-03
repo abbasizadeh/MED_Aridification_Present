@@ -6,10 +6,10 @@ source('./code/source/functions.R')
 
 
 slope_budyko_data <- 
-  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/slope_budyko_data_07.rds")
+  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/07_slope_entropy_budyko_data.rds")
 
 
-bar_plot_data <- unique(slope_budyko_data[, .(kg_code, entropy, normalized_entropy, mutual_information)])
+bar_plot_data <- unique(slope_budyko_data[, .(kg_code, entropy_kg, normalized_entropy_kg, mutual_information_kg)])
 
 p1 <- ggplot(data = slope_budyko_data) + 
         geom_boxplot(aes(x = slope, y = factor(kg_code))) + 
@@ -29,7 +29,7 @@ p1 <- ggplot(data = slope_budyko_data) +
 
 
 p2 <- ggplot() +
-        geom_col(data = bar_plot_data, aes(y = factor(kg_code), x = normalized_entropy)) +
+        geom_col(data = bar_plot_data, aes(y = factor(kg_code), x = normalized_entropy_kg)) +
         scale_x_reverse() +  
   scale_y_discrete(position = "right") +
   theme(
@@ -47,7 +47,7 @@ plot_grid(p1, p2, ncol = 2, align = "h", rel_widths = c(3, 1))
 
 
 p3 <- ggplot() +
-  geom_col(data = bar_plot_data, aes(y = factor(kg_code), x = mutual_information)) +
+  geom_col(data = bar_plot_data, aes(y = factor(kg_code), x = mutual_information_kg)) +
   scale_x_reverse() +
   scale_y_discrete(position = "right") +
   theme(
@@ -65,13 +65,13 @@ plot_grid(p1, p3, ncol = 2, align = "h", rel_widths = c(3, 1))
 
 
 ## Figures
-to_plot_sf <- slope_budyko_data[, .(x, y, normalized_entropy)] %>% 
+to_plot_sf <- slope_budyko_data[, .(x, y, normalized_entropy_kg)] %>% 
   rasterFromXYZ(res = c(0.25, 0.25),
                 crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
   st_as_stars() %>% st_as_sf()
 
 entropy_med <- ggplot(to_plot_sf) +
-  geom_sf(aes(color = normalized_entropy, fill = normalized_entropy)) +
+  geom_sf(aes(color = normalized_entropy_kg, fill = normalized_entropy_kg)) +
   scale_color_gradient2(low =  '#06FF00', mid = '#FFE400', high = '#FF1700') +
   scale_fill_gradient2(low =  '#06FF00', mid = '#FFE400', high = '#FF1700') +
   coord_sf(expand = FALSE, crs = "+proj=robin") +
