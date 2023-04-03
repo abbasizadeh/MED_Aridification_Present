@@ -8,7 +8,6 @@ source("./code/source/global_variables.R")
 # load functions
 source('./code/source/functions.R')
 
-
 # read obs precipitaion files
 obs_precip <- list.files(path = "~/shared/data/obs/precip/raw/",
                          full.names = T)
@@ -17,7 +16,7 @@ obs_precip
 # find the directory of required obs precip data in the obs_precip
 index_obs_precip <- c()
 for (dir in 1:length(obs_precip)) {
-  if (grepl("em-earth|chirps|cmorph|gmp-im|persiann|gpcc", obs_precip[dir]) &
+  if (grepl("em-earth|chirps|cmorph|gmp-im|persiann|gpcc|mswep", obs_precip[dir]) &
       grepl("monthly", obs_precip[dir]) &
       grepl("land", obs_precip)[dir]){
     index_obs_precip <- append(index_obs_precip, dir)
@@ -69,7 +68,7 @@ sim_precip
 
 index_sim_precip <- c()
 for (dir in 1:length(sim_precip)) {
-  if (grepl("era5|merra2|ncep-ncar|terraclimate", sim_precip[dir]) &
+  if (grepl("era5|merra2|ncep-ncar|terraclimate|jra55", sim_precip[dir]) &
       grepl("monthly", sim_precip[dir]) &
       grepl("land", sim_precip)[dir]) {
     index_sim_precip <- append(index_sim_precip, dir)
@@ -86,7 +85,6 @@ for(p_data in 1:length(precip_sim_dir)) {
   # gsub("-", "_", x = precip_sim_dir[p_data])
   dataset_name <-
     str_match(precip_sim_dir[p_data], "//\\s*(.*?)\\s*\\.nc")
-  
   
   p_names_table <-
     read.table(text = dataset_name[, 2],
@@ -125,7 +123,7 @@ sim_evap
 
 index_sim_evap <- c()
 for (dir in 1:length(sim_evap)) {
-  if (grepl("era5|terraclimate|gleam", sim_evap[dir]) &
+  if (grepl("terraclimate|gleam", sim_evap[dir]) &
       grepl("_e_|pet", sim_evap[dir])){
     index_sim_evap <- append(index_sim_evap, dir)
   }

@@ -5,20 +5,18 @@ source("./code/source/global_variables.R")
 source('./code/source/functions.R')
 
 
-precip_obs_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/obs/precip")
-precip_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/precip")
-evap_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/evap")
+precip_obs_files <- list.files(PATH_OBS_PRECIP_MONTHLY)
+precip_sim_files <- list.files(PATH_SIM_PRECIP_MONTHLY)
+evap_sim_files <- list.files(PATH_SIM_EVAP_MONTHLY)
 
-PATH_OBS_PRECIP <- "~/shared/data_projects/med_datasets/2000_2019_data/obs/precip/"
-PATH_SIM_PRECIP <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/precip/"
-PATH_SIM_EVAP <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/evap/"
+
 
 
 # calculation of mean annual observed precipitation for the whole period 2000-2019
 for (precip_data_index in 1:length(precip_obs_files)) {
   
   # calculation of annual precipitation
-  dummie_brick <- monthly_to_annual(paste0(PATH_OBS_PRECIP, precip_obs_files[[precip_data_index]]))
+  dummie_brick <- monthly_to_annual(paste0(PATH_OBS_PRECIP_MONTHLY, precip_obs_files[[precip_data_index]]))
   
   # calculation of mean annual precipitation for the whole period
   dummie_brick <- mean(dummie_brick)
@@ -45,7 +43,7 @@ for (precip_data_index in 1:length(precip_obs_files)) {
 for (precip_data_index in 1:length(precip_sim_files)) {
   
   # calculation of annual precipitation
-  dummie_brick <- monthly_to_annual(paste0(PATH_SIM_PRECIP, precip_sim_files[[precip_data_index]]))
+  dummie_brick <- monthly_to_annual(paste0(PATH_SIM_PRECIP_MONTHLY, precip_sim_files[[precip_data_index]]))
   
   # calculation of mean annual precipitation for the whole period
   dummie_brick <- mean(dummie_brick)
@@ -76,7 +74,7 @@ for (precip_data_index in 1:length(precip_sim_files)) {
 for (evap_data_index in 1:length(evap_sim_files)) {
   
   # calculation of annual evaporation
-  dummie_brick <- monthly_to_annual(paste0(PATH_SIM_EVAP, evap_sim_files[[evap_data_index]]))
+  dummie_brick <- monthly_to_annual(paste0(PATH_SIM_EVAP_MONTHLY, evap_sim_files[[evap_data_index]]))
   
   # calculation of mean annual evaporation for the whole period
   dummie_brick <- mean(dummie_brick)
@@ -103,12 +101,12 @@ for (evap_data_index in 1:length(evap_sim_files)) {
 # 
 # plot(a)
 # plot(b)
-# print(nc_open(paste0(PATH_SIM_EVAP, evap_sim_files[[evap_data_index]])))
-# nc_close(paste0(PATH_SIM_EVAP, evap_sim_files[[evap_data_index]]))
+# print(nc_open(paste0(PATH_SIM_EVAP_MONTHLY, evap_sim_files[[evap_data_index]])))
+# nc_close(paste0(PATH_SIM_EVAP_MONTHLY, evap_sim_files[[evap_data_index]]))
 # 
 # 
-# era_e <- brick(paste0(PATH_SIM_EVAP, evap_sim_files[[1]]))
-# era_pet <- brick(paste0(PATH_SIM_EVAP, evap_sim_files[[2]]))
+# era_e <- brick(paste0(PATH_SIM_EVAP_MONTHLY, evap_sim_files[[1]]))
+# era_pet <- brick(paste0(PATH_SIM_EVAP_MONTHLY, evap_sim_files[[2]]))
 # plot(era_e$X2000.01.01)
 # plot(era_pet$X2000.01.01)
 # 

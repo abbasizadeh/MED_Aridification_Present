@@ -5,13 +5,20 @@ source("./code/source/global_variables.R")
 source('./code/source/functions.R')
 
 
-precip_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip")
-precip_obs_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/obs/budyko/budyko_precip")
+path_obs_precip_mean <- "~/shared/data_projects/med_datasets/2000_2019_data/obs/budyko/budyko_precip/"
+path_sim_precip_mean <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/"
+path_sim_evap_mean <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap/"
+path_save <- "~/shared/data_projects/med_datasets/2000_2019_data/budyko/"
 
-evap_sim_files <- list.files("~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap")
 
-precip_sim_files[2]
-evap_sim_files[5]
+precip_obs_files <- list.files(path_obs_precip_mean)
+precip_sim_files <- list.files(path_sim_precip_mean)
+evap_sim_files <- list.files(path_sim_evap_mean)
+
+
+precip_obs_files
+precip_sim_files
+evap_sim_files
 
 # precip data
 p_names_table <- read.table(text = precip_sim_files, sep = "_", as.is = TRUE)
@@ -23,27 +30,27 @@ p_names_table <- rbind(p_names_table, read.table(text = precip_obs_files, sep = 
 p_columns = c("p_raster_name", "raster") 
 p_data_frame = data.frame(matrix(nrow = length(precip_sim_files) + length(precip_obs_files), ncol = length(p_columns))) 
 colnames(p_data_frame) = p_columns
-precip_sim_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_precip/"
-precip_obs_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/obs/budyko/budyko_precip/"
 
 
 # save precipitation data in p_data_frame data frame
 for(name in 1:length(precip_sim_files)){
   p_data_frame$p_raster_name[name] <- paste0("p_", p_names_table$V1[name])
-  p_data_frame$raster[name] <- list(raster(paste0(precip_sim_files_dir, precip_sim_files[name])))
+  p_data_frame$raster[name] <- list(raster(paste0(path_sim_precip_mean, precip_sim_files[name])))
 }
 
 itr_start <- length(precip_sim_files) + 1
 itr_end <- length(precip_sim_files) + length(precip_obs_files)
+
 for(name in  itr_start:itr_end){
   p_data_frame$p_raster_name[name] <- paste0("p_", p_names_table$V1[name])
-  index <- name - 4
-  p_data_frame$raster[name] <- list(raster(paste0(precip_obs_files_dir, precip_obs_files[[index]])))
+  index <- name - itr_start + 1
+  p_data_frame$raster[name] <- list(raster(paste0(path_obs_precip_mean, precip_obs_files[[index]])))
 }
-
 
 p_data_frame$p_raster_name[1]
 plot(p_data_frame$raster[1][[1]])
+
+
 
 
 # evap data
@@ -53,32 +60,22 @@ evap_names_table <- read.table(text = evap_sim_files, sep = "_", as.is = TRUE)
 e_columns = c("e_raster_name", "raster") 
 e_data_frame = data.frame(matrix(nrow = length(evap_sim_files), ncol = length(e_columns))) 
 colnames(e_data_frame) = e_columns
-e_files_dir <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/budyko_evap/"
 
 
 for(name in 1:length(evap_sim_files)){
   e_data_frame$e_raster_name[name] <- paste0(evap_names_table$V2[name], "_", evap_names_table$V1[name])
-  e_data_frame$raster[name] <- list(raster(paste0(e_files_dir, evap_sim_files[name])))
+  e_data_frame$raster[name] <- list(raster(paste0(path_sim_evap_mean, evap_sim_files[name])))
 }
+
 
 # check
 e_data_frame$e_raster_name[2]
 # plot(e_data_frame$raster[[2]])
-# 
+ 
 # tes_era5 <- as.data.frame(e_data_frame$raster[[2]],
 #                 xy = TRUE,
 #                 long = TRUE,
 #                 na.rm = F)
-# e_era5 <- as.data.frame(e_data_frame$raster[[2]],
-#                 xy = TRUE,
-#                 long = TRUE,
-#                 na.rm = F)
-# e_gleam_era5 <- as.data.frame(e_data_frame$raster[[3]],
-#                 xy = TRUE,
-#                 long = TRUE,
-#                 na.rm = F)
-
-# min(tes_era5$value)
 
 
 # zApply()
@@ -133,10 +130,12 @@ for(p_itr in 1:length(p_data_frame$p_raster_name)) {
 }
 
 # tidy up the data frames
+unique(arid_index_data_frame$combination)
 arid_index_data_frame
 arid_index_data_frame$layer <- NULL
 arid_index_data_frame
 
+unique(evap_index_data_frame$combination)
 evap_index_data_frame
 evap_index_data_frame$layer <- NULL
 evap_index_data_frame
@@ -144,61 +143,52 @@ evap_index_data_frame
 names(arid_index_data_frame) <- c("x", "y", "arid_index", "arid_comb")
 names(evap_index_data_frame) <- c("x", "y", "evap_index", "evap_comb")
 
+
 # checking the values
 unique(evap_index_data_frame$evap_comb)
+summary(evap_index_data_frame$evap_index)
 evap_index_data_frame[evap_index == Inf, evap_index := NA]
 evap_index_data_frame[evap_index == -Inf, evap_index := NA]
 summary(evap_index_data_frame$evap_index)
 
 plot(evap_index_data_frame$evap_index, type = "l")
+plot(arid_index_data_frame$arid_index, type = "l")
 
-plot(evap_index_data_frame[evap_comb == "e_era5_p_era5" ]$evap_index, type = "l") # e_era5 is removed
-plot(evap_index_data_frame[evap_comb == "e_gleam_p_merra2" ]$evap_index, type = "l")
-plot(evap_index_data_frame[evap_comb == "e_terraclimate_p_ncep-ncar" ]$evap_index, type = "l")
-plot(evap_index_data_frame[evap_comb == "e_gleam_p_era5" ]$evap_index, type = "l")
-plot(evap_index_data_frame[evap_comb == "e_terraclimate_p_merra2" ]$evap_index, type = "l")
-plot(evap_index_data_frame[evap_comb == "e_terraclimate_p_era5" ]$evap_index, type = "l")
-plot(evap_index_data_frame[evap_comb == "e_era5_p_ncep-ncar" ]$evap_index, type = "l") # e_era5 is removed
-plot(evap_index_data_frame[evap_comb == "e_era5_p_merra2" ]$evap_index, type = "l") # e_era5 is removed
-plot(evap_index_data_frame[evap_comb == "e_gleam_p_ncep-ncar" ]$evap_index, type = "l")
+ggplot(data = evap_index_data_frame, aes(x = seq(1, length(evap_index)), y = evap_index)) +
+  geom_line() + 
+  facet_wrap(vars(evap_comb))
+
 
 
 # remove the negative values
-# arid_index_data_frame[arid_index < 0, arid_index := arid_index*-1]
-# arid_index_data_frame[arid_index >= 20 | arid_index < 0, arid_index := NA]
-# length(which(is.na(arid_index_data_frame$arid_index)))
+unique(arid_index_data_frame$arid_comb)
+unique(evap_index_data_frame$evap_comb)
+
 summary(arid_index_data_frame$arid_index)
 arid_index_data_frame[arid_index == Inf, arid_index := NA]
 arid_index_data_frame[arid_index == -Inf, arid_index := NA]
-
 summary(arid_index_data_frame$arid_index)
+
 arid_index_data_frame[arid_index < 0 , arid_index := NA]
 summary(arid_index_data_frame$arid_index)
 # arid_index_data_frame[arid_index > 100 , arid_index := 20]
 min(arid_index_data_frame$arid_index, na.rm = T)
 
-
-unique(arid_index_data_frame$arid_comb)
-plot(arid_index_data_frame[arid_comb == "pet_era5_p_era5", arid_index], type = "l", ) # pet_era5 is removed
-plot(arid_index_data_frame[arid_comb == "pet_gleam_p_merra2", arid_index], type = "l")
-plot(arid_index_data_frame[arid_comb == "pet_gleam_p_era5", arid_index], type = "l")
-plot(arid_index_data_frame[arid_comb == "pet_terraclimate_p_merra2", arid_index], type = "l")
-plot(arid_index_data_frame[arid_comb == "pet_terraclimate_p_era5", arid_index], type = "l")
-plot(arid_index_data_frame[arid_comb == "pet_era5_p_merra2", arid_index], type = "l") # pet_era5 is removed
-plot(arid_index_data_frame[arid_comb == "pet_gleam_p_ncep-ncar", arid_index], type = "l")
-plot(arid_index_data_frame[arid_comb == "pet_terraclimate_p_ncep-ncar", arid_index], type = "l")
-plot(arid_index_data_frame[arid_comb == "pet_era5_p_ncep-ncar", arid_index], type = "l") # pet_era5 is removed
-plot(arid_index_data_frame[arid_comb == "pet_terraclimate_p_terraclimate", arid_index], type = "l") # pet_era5 is removed
+ggplot(data = arid_index_data_frame, aes(x = seq(1, length(arid_index)), y = arid_index)) +
+  geom_line() + 
+  facet_wrap(vars(arid_comb))
 
 
 
 budyko_data <- cbind(arid_index_data_frame,evap_index_data_frame[, 3])
+
+budyko_data[, arid_comb := str_replace(arid_comb, "pet", "e_pet")]
+
 budyko_data <- budyko_data[ , c("x", "y", "arid_index", "evap_index", "arid_comb")]
 names(budyko_data) <- c("x", "y", "arid_index", "evap_index", "combination")
-path_save <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/"
 
-saveRDS(object = budyko_data, file = paste0(path_save, "budyko_data_03.rds"))
-# saveRDS(object = evap_index_data_frame, file = paste0(path_save, "evaporative_index.rds"))
+saveRDS(object = budyko_data, file = paste0(path_save, "03_budyko_data.rds"))
+
 
 
 
