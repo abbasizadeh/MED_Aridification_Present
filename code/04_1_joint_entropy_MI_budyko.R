@@ -55,53 +55,66 @@ budyko_data <- na.omit(budyko_data)
 med_kg_codes <- c(unique(budyko_data$kg_code))
 
 # define a data frame (entropy_data_frame) to save entropy values for each KG class
-colume_names = c("kg_code", "entropy_kg", "number_kg", "normalized_entropy_kg", "mutual_information_kg")
+colume_names = c("kg_code", 
+                 "joint_entropy_kg", 
+                 "number_kg", 
+                 # "max_entropy_kg", 
+                 # "mutual_information_kg",
+                  "arid_entrpy_kg",
+                 "evap_entropy_kg")
 entropy_data_frame = data.table(matrix(nrow = length(med_kg_codes), ncol = length(colume_names))) 
 colnames(entropy_data_frame) = colume_names
 
+# define bins for entropy
+arid_bin <- c(0, 1.5, 2, 5, 33, ceiling(budyko_data[, max(arid_index)])) #seq(from = 0, to = ceiling(budyko_data_dummie[, max(arid_index)]), by = 1)
+evap_bin <- c(0, 0.5, 1, 1.5, 2, 3, 5, 6, 7, 8, 9, 
+              seq(from = 10, to = ceiling(budyko_data[, max(evap_index)])+ ceiling(budyko_data[, max(evap_index)])%%5 
+                  , by = 5))
+# calculate the number of each point in the each bin as a table
 
 # calculate entropy of points on the Budyko space
 for(kg_ite in 1:length(med_kg_codes)){
   
   budyko_data_dummie <- budyko_data[kg_code == med_kg_codes[kg_ite], ]
   
-  # define bins for entropy
-  arid_bin <- seq(from = 0, to = ceiling(budyko_data_dummie[, max(arid_index)]), by = 1)
-  evap_bin <- seq(from = 0, to = ceiling(budyko_data_dummie[, max(evap_index)]), by = 1)
-  
-  
-  # calculate the number of each point in the each bin as a table
   freq_tbl <-
     table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin), 
           cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
   
+  freq_tbl_arid <-
+    table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin))
   
+  freq_tbl_evap <-
+    table(cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
+  
+  # KG code
+  entropy_data_frame$kg_code[kg_ite] <- med_kg_codes[kg_ite]
   
   # joint entropy
-  entropy_data_frame$entropy_kg[kg_ite] <- entropy(freq_tbl)
+  entropy_data_frame$joint_entropy_kg[kg_ite] <- entropy(freq_tbl)
   
+  # number of grid cells
   entropy_data_frame$number_kg[kg_ite] <-
     length(budyko_data[kg_code == med_kg_codes[kg_ite], arid_index])
   
-  entropy_data_frame$kg_code[kg_ite] <- med_kg_codes[kg_ite]
-  
-  
   # entropy_data_frame$max_possible_entropy[kg_ite] <- log(length(arid_bin)* length(evap_bin))
+  # entropy_data_frame$max_entropy_kg[kg_ite] <- log(length(freq_tbl_evap) * length(freq_tbl_arid))
   
-  entropy_data_frame$normalized_entropy_kg[kg_ite] <- entropy_data_frame$entropy[kg_ite]/(log(length(budyko_data_dummie$kg_code)))^2
+  # # mutual information
+  # # compute marginal entropies
+  # H1 = entropy(rowSums(freq_tbl))
+  # H2 = entropy(colSums(freq_tbl))
+  # # mutual entropy
+  # entropy_data_frame$mutual_information_kg[kg_ite]  <- H1 + H2- entropy_data_frame$joint_entropy[kg_ite]
   
-  # mutual information
-  # compute marginal entropies
-  H1 = entropy(rowSums(freq_tbl))
-  H2 = entropy(colSums(freq_tbl))
-  # mutual entropy
-  entropy_data_frame$mutual_information_kg[kg_ite]  <- H1 + H2- entropy_data_frame$entropy[kg_ite]
+  entropy_data_frame$arid_entrpy_kg[kg_ite] <- entropy(freq_tbl_arid)
+  entropy_data_frame$evap_entropy_kg[kg_ite] <- entropy(freq_tbl_evap)
   
   
 }
 
 entropy_data_frame 
-ggplot(entropy_data_frame) + geom_point(aes(x = number_kg, y = normalized_entropy_kg))
+ggplot(entropy_data_frame) + geom_point(aes(x = number_kg, y = arid_entrpy_kg))
 # normalize the values of entropy according to the number of points (grids) in each KG class
 # entropy_data_frame[, normalized_entropy:= entropy*number/sum(number)]
 
@@ -110,13 +123,12 @@ budyko_data <- merge(budyko_data, entropy_data_frame, by = 'kg_code')
 
 budyko_data[kg_code == 0,]
 
-budyko_data[, normalized_entropy := entropy/max_possible_entropy]
 head(budyko_data)
 tail(budyko_data)
 
 
 # saveRDS(budyko_data, paste0(path_budyko_data, "04_1_budyko_data_joint_entropy_KG.rds"))
-saveRDS(entropy_data_frame, paste0(path_budyko_data, "04_1_joint_entropy_MI_KG.rds"))
+saveRDS(entropy_data_frame, paste0(path_budyko_data, "04_1_joint_entropy_KG.rds"))
 
 
 
@@ -128,13 +140,19 @@ saveRDS(entropy_data_frame, paste0(path_budyko_data, "04_1_joint_entropy_MI_KG.r
 med_combination <- c(unique(budyko_data$combination))
 
 # define a data frame (entropy_data_frame) to save entropy values for each combination
-colume_names = c("combination", "entropy_comb", "number_comb", "mutual_info_comb")
+colume_names = c("combination", 
+                 "jiont_entropy_comb", 
+                 "number_comb", 
+                 # "mutual_info_comb",
+                 "arid_entropy_comb",
+                 "evap_entropy_comb"
+                 )
 entropy_data_comb_frame = data.table(matrix(nrow = length(med_combination), ncol = length(colume_names))) 
 colnames(entropy_data_comb_frame) = colume_names
 
 # the bins for all combinations are the same as the number of pixels is the same
-arid_bin_comb <- seq(from = 0, to = ceiling(budyko_data[, max(arid_index)]), by = 1)
-evap_bin_comb <- seq(from = 0, to = ceiling(budyko_data[, max(evap_index)]), by = 1)
+# arid_bin_comb <- seq(from = 0, to = ceiling(budyko_data[, max(arid_index)]), by = 1)
+# evap_bin_comb <- seq(from = 0, to = ceiling(budyko_data[, max(evap_index)]), by = 1)
 
 # calculate entropy of points on the Budyko space
 for(comb_ite in 1:length(med_combination)){
@@ -143,10 +161,14 @@ for(comb_ite in 1:length(med_combination)){
   
   # calculate the number of each point in the each bin as a table
   freq_tbl <-
-    table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin_comb), 
-          cut(budyko_data_dummie[, evap_index], breaks = evap_bin_comb))
+    table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin), 
+          cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
   
+  freq_tbl_arid <-
+    table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin))
   
+  freq_tbl_evap <-
+    table(cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
   
   # joint entropy
   entropy_data_comb_frame$entropy_comb[comb_ite] <- entropy(freq_tbl)
@@ -156,13 +178,15 @@ for(comb_ite in 1:length(med_combination)){
   
   entropy_data_comb_frame$combination[comb_ite] <- med_combination[comb_ite]
   
-  # mutual information
-  # compute marginal entropies
-  H1 = entropy(rowSums(freq_tbl))
-  H2 = entropy(colSums(freq_tbl))
-  # mutual entropy
-  entropy_data_comb_frame$mutual_info_comb[comb_ite]  <- H1 + H2- entropy_data_comb_frame$entropy[comb_ite]
+  # # mutual information
+  # # compute marginal entropies
+  # H1 = entropy(rowSums(freq_tbl))
+  # H2 = entropy(colSums(freq_tbl))
+  # # mutual entropy
+  # entropy_data_comb_frame$mutual_info_comb[comb_ite]  <- H1 + H2- entropy_data_comb_frame$entropy[comb_ite]
   
+  entropy_data_comb_frame$arid_entropy_comb[comb_ite] <- entropy(freq_tbl_arid)
+  entropy_data_comb_frame$evap_entropy_comb[comb_ite] <- entropy(freq_tbl_evap)
   
 }
 
@@ -177,7 +201,7 @@ tail(budyko_data)
 
 
 saveRDS(budyko_data, paste0(path_budyko_data, "04_1_budyko_data_joint_entropy.rds"))
-saveRDS(entropy_data_comb_frame, paste0(path_budyko_data, "04_1_joint_entropy_MI_comb.rds"))
+saveRDS(entropy_data_comb_frame, paste0(path_budyko_data, "04_1_joint_entropy_comb.rds"))
 
 
 
