@@ -20,8 +20,21 @@ KG_class <- c("#FF0000", "#FF9696" , "#F5A500", "#FFDC64",
                        "#FFFF00" , "#C8C800" , "#C8FF50", "#64FF50", "#FF00FF", 
                        "#C800C8", "#963296", "#00FFFF", "#37C8FF", "#007D7D","#B2B2B2" )
 
+g1 <- budyko_data[variable == "arid_index",]
+names(g1)[4] <- 'arid_index'
+g1$variable <- NULL
+g2 <- budyko_data[variable == "evap_index",]
+names(g2)[4] <- 'evap_index'
+g2$variable <- NULL
+graph_data <- merge(g1, g2, by = c("x","y", 'combinaiton'))
+
+dcast(data = budyko_data,
+      formula = variable,
+      value.var = "value")
+
+
 ggplot(data = budyko_data) +
-  geom_point( aes(x = arid_index, y = evap_index, color = factor(kg_code)), size = 0.1) +
+  geom_point(aes(x = arid_index, y = evap_index, color = factor(kg_code)), size = 0.1) +
   scale_color_manual(values =  KG_class) + 
   geom_line(data = bins, aes(x = aridity, y = evaporative, group = factor(Omega)), color = "grey", alpha = 0.5) + 
   geom_abline(intercept = 0, slope = 1) +

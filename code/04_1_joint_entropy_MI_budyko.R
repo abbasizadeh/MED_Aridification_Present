@@ -21,10 +21,13 @@ unique(budyko_data$combination)
 
 # check the data
 budyko_data <- na.omit(budyko_data)
-budyko_data[arid_index == max(arid_index, na.rm = T), ]
-summary(budyko_data$arid_index)
-budyko_data[evap_index == max(evap_index, na.rm = T), ]
-summary(budyko_data$evap_index)
+budyko_data[variable == 'arid_index'][value == max(value, na.rm = T), ]
+
+summary(budyko_data[variable == 'arid_index', value])
+
+budyko_data[variable  == 'evap_index',][value == max(value, na.rm = T),]
+
+summary(budyko_data[variable == 'evap_index', value])
 unique(budyko_data$combination)
 
 # add Koppen Geiger (KG) classes to the budyko_data 
@@ -66,10 +69,10 @@ entropy_data_frame = data.table(matrix(nrow = length(med_kg_codes), ncol = lengt
 colnames(entropy_data_frame) = colume_names
 
 # define bins for entropy
-arid_bin <- c(0, 1.5, 2, 5, 33, ceiling(budyko_data[, max(arid_index)])) #seq(from = 0, to = ceiling(budyko_data_dummie[, max(arid_index)]), by = 1)
-evap_bin <- c(0, 0.5, 1, 1.5, 2, 3, 5, 6, 7, 8, 9, 
-              seq(from = 10, to = ceiling(budyko_data[, max(evap_index)])+ ceiling(budyko_data[, max(evap_index)])%%5 
-                  , by = 5))
+arid_bin <- c(0, 1, 2, 5, 20, ceiling(budyko_data[variable == 'arid_index',][, max(value)])) #seq(from = 0, to = ceiling(budyko_data_dummie[, max(arid_index)]), by = 1)
+evap_bin <- c(seq(from = 0, to = ceiling(budyko_data[variable == 'evap_index',][, max(value)]) + 
+                    ceiling(budyko_data[variable == 'evap_index',][, max(value)])%%5 
+                  , by = 0.5))
 # calculate the number of each point in the each bin as a table
 
 # calculate entropy of points on the Budyko space
@@ -78,14 +81,14 @@ for(kg_ite in 1:length(med_kg_codes)){
   budyko_data_dummie <- budyko_data[kg_code == med_kg_codes[kg_ite], ]
   
   freq_tbl <-
-    table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin), 
-          cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
+    table(cut(budyko_data_dummie[variable == "arid_index", value], breaks = arid_bin), 
+          cut(budyko_data_dummie[variable == "evap_index", value], breaks = evap_bin))
   
   freq_tbl_arid <-
-    table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin))
+    table(cut(budyko_data_dummie[variable == "arid_index", value], breaks = arid_bin))
   
   freq_tbl_evap <-
-    table(cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
+    table(cut(budyko_data_dummie[variable == "evap_index", value], breaks = evap_bin))
   
   # KG code
   entropy_data_frame$kg_code[kg_ite] <- med_kg_codes[kg_ite]
@@ -95,7 +98,7 @@ for(kg_ite in 1:length(med_kg_codes)){
   
   # number of grid cells
   entropy_data_frame$number_kg[kg_ite] <-
-    length(budyko_data[kg_code == med_kg_codes[kg_ite], arid_index])
+    length(budyko_data[kg_code == med_kg_codes[kg_ite] & variable == "arid_index", kg_code])
   
   # entropy_data_frame$max_possible_entropy[kg_ite] <- log(length(arid_bin)* length(evap_bin))
   # entropy_data_frame$max_entropy_kg[kg_ite] <- log(length(freq_tbl_evap) * length(freq_tbl_arid))
@@ -119,11 +122,11 @@ ggplot(entropy_data_frame) + geom_point(aes(x = number_kg, y = arid_entropy_kg))
 # entropy_data_frame[, normalized_entropy:= entropy*number/sum(number)]
 
 
-budyko_data <- merge(budyko_data, entropy_data_frame, by = 'kg_code')
+budyko_data_arid <- merge(budyko_data, entropy_data_frame, by = 'kg_code')
 
-budyko_data[kg_code == 0,]
+budyko_data_arid[kg_code == 0,]
 
-head(budyko_data)
+head(budyko_data_arid)
 tail(budyko_data)
 
 
@@ -141,11 +144,13 @@ med_combination <- c(unique(budyko_data$combination))
 
 # define a data frame (entropy_data_frame) to save entropy values for each combination
 colume_names = c("combination", 
-                 "joint_entropy_comb", 
+                 # "joint_entropy_comb", 
+                 'var_name_comb',
                  "number_comb", 
+                 'entropy_value_comb'
                  # "mutual_info_comb",
-                 "arid_entropy_comb",
-                 "evap_entropy_comb"
+                 # "arid_entropy_comb",
+                 # "evap_entropy_comb"
                  )
 entropy_data_comb_frame = data.table(matrix(nrow = length(med_combination), ncol = length(colume_names))) 
 colnames(entropy_data_comb_frame) = colume_names
@@ -160,21 +165,28 @@ for(comb_ite in 1:length(med_combination)){
   budyko_data_dummie <- budyko_data[combination == med_combination[comb_ite], ]
   
   # calculate the number of each point in the each bin as a table
-  freq_tbl <-
-    table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin), 
-          cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
+  # freq_tbl <-
+  #   table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin), 
+  #         cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
   
-  freq_tbl_arid <-
-    table(cut(budyko_data_dummie[, arid_index], breaks = arid_bin))
-  
-  freq_tbl_evap <-
-    table(cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
-  
+  if(startsWith(med_combination[comb_ite], 'pet')){
+    
+    freq_tbl_arid <-
+      table(cut(budyko_data_dummie[, value], breaks = arid_bin))
+    entropy_data_comb_frame$entropy_value_comb[comb_ite] <- entropy(freq_tbl_arid)
+    entropy_data_comb_frame$var_name_comb[comb_ite] <- 'arid_entropy'
+    
+  }else{
+    freq_tbl_evap <-
+      table(cut(budyko_data_dummie[, value], breaks = evap_bin))
+    entropy_data_comb_frame$entropy_value_comb[comb_ite] <- entropy(freq_tbl_evap)
+    entropy_data_comb_frame$var_name_comb[comb_ite] <- 'evap_entropy'
+  }
   # joint entropy
-  entropy_data_comb_frame$joint_entropy_comb[comb_ite] <- entropy(freq_tbl)
+  # entropy_data_comb_frame$joint_entropy_comb[comb_ite] <- entropy(freq_tbl)
   
   entropy_data_comb_frame$number_comb[comb_ite] <-
-    length(budyko_data[combination == med_combination[comb_ite], arid_index])
+    length(budyko_data[combination == med_combination[comb_ite], value])
   
   entropy_data_comb_frame$combination[comb_ite] <- med_combination[comb_ite]
   
@@ -185,27 +197,39 @@ for(comb_ite in 1:length(med_combination)){
   # # mutual entropy
   # entropy_data_comb_frame$mutual_info_comb[comb_ite]  <- H1 + H2- entropy_data_comb_frame$entropy[comb_ite]
   
-  entropy_data_comb_frame$arid_entropy_comb[comb_ite] <- entropy(freq_tbl_arid)
-  entropy_data_comb_frame$evap_entropy_comb[comb_ite] <- entropy(freq_tbl_evap)
+  
   
 }
 
-
 entropy_data_comb_frame 
-budyko_data <- merge(budyko_data, entropy_data_comb_frame, by = 'combination')
+budyko_data_evap <- merge(budyko_data, entropy_data_comb_frame, by = 'combination')
 
-budyko_data[kg_code == 0,]
-
-head(budyko_data)
-tail(budyko_data)
+head(budyko_data_evap)
+head(budyko_data_arid)
 
 
-saveRDS(budyko_data, paste0(path_budyko_data, "04_1_budyko_data_joint_entropy.rds"))
+budyko_final <- merge(budyko_data_evap, budyko_data_arid, by = c('x','y','variable', 'value', 'kg_code', 'combination'))
+
+
+
+budyko_final[kg_code == 0,]
+
+head(budyko_final)
+tail(budyko_final)
+budyko_final[, c('x', 'y', 'kg_code', 'combination', 'variable', 'value',
+                 'var_name_comb', 'entropy_value_comb', 'number_comb',
+                 'joint_entropy_kg', 'evap_entropy_kg', 'number_kg', 'arid_entropy_kg')]
+
+saveRDS(budyko_final, paste0(path_budyko_data, "04_1_budyko_data_joint_entropy.rds"))
 saveRDS(entropy_data_comb_frame, paste0(path_budyko_data, "04_1_joint_entropy_comb.rds"))
 
 
 
-
+# testt <-readRDS('~/shared/data_projects/med_datasets/2000_2019_data/budyko/04_1_budyko_data_joint_entropy.rds')
+# 
+# head(testt[x == -1.125 & y == 38.125 & combination == 'e_pet_gleam_p_chirps',])
+# head(budyko_final[x == -1.125 & y == 38.125 & combination == 'e_gleam_p_chirps',])
+# unique(budyko_final$combination)
 # normalize the values of entropy according to the number of points (grids) in each KG class
 # entropy_data_frame[, normalized_entropy:= entropy*number/sum(number)]
 

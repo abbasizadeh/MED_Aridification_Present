@@ -135,57 +135,69 @@ arid_index_data_frame
 arid_index_data_frame$layer <- NULL
 arid_index_data_frame
 
+arid_index_data_frame$variable <- rep('arid_index', length(arid_index_data_frame$x))
+arid_index_data_frame <- arid_index_data_frame[, c('x', 'y', 'variable', 'value', 'combination')]
+arid_index_data_frame
+
 unique(evap_index_data_frame$combination)
 evap_index_data_frame
 evap_index_data_frame$layer <- NULL
 evap_index_data_frame
 
-names(arid_index_data_frame) <- c("x", "y", "arid_index", "arid_comb")
-names(evap_index_data_frame) <- c("x", "y", "evap_index", "evap_comb")
+evap_index_data_frame$variable <- rep('evap_index', length(evap_index_data_frame$x))
+evap_index_data_frame <- evap_index_data_frame[, c('x', 'y', 'variable', 'value', 'combination')]
+evap_index_data_frame
+
+# names(arid_index_data_frame) <- c("x", "y", "arid_index", "arid_comb")
+# names(evap_index_data_frame) <- c("x", "y", "evap_index", "evap_comb")
 
 
 # checking the values
-unique(evap_index_data_frame$evap_comb)
-summary(evap_index_data_frame$evap_index)
-evap_index_data_frame[evap_index == Inf, evap_index := NA]
-evap_index_data_frame[evap_index == -Inf, evap_index := NA]
-summary(evap_index_data_frame$evap_index)
+unique(evap_index_data_frame$combination)
+summary(evap_index_data_frame$value)
+evap_index_data_frame[value == Inf, value := NA]
+evap_index_data_frame[value == -Inf, value := NA]
+summary(evap_index_data_frame$value)
 
-plot(evap_index_data_frame$evap_index, type = "l")
-plot(arid_index_data_frame$arid_index, type = "l")
+plot(evap_index_data_frame$value, type = "l")
+plot(arid_index_data_frame$value, type = "l")
 
-ggplot(data = evap_index_data_frame, aes(x = seq(1, length(evap_index)), y = evap_index)) +
+ggplot(data = evap_index_data_frame, aes(x = seq(1, length(value)), y = value)) +
   geom_line() + 
-  facet_wrap(vars(evap_comb))
+  facet_wrap(vars(combination))
 
 
 
 # remove the negative values
-unique(arid_index_data_frame$arid_comb)
-unique(evap_index_data_frame$evap_comb)
+unique(arid_index_data_frame$combination)
+unique(evap_index_data_frame$combination)
 
-summary(arid_index_data_frame$arid_index)
-arid_index_data_frame[arid_index == Inf, arid_index := NA]
-arid_index_data_frame[arid_index == -Inf, arid_index := NA]
-summary(arid_index_data_frame$arid_index)
+summary(arid_index_data_frame$value)
+arid_index_data_frame[value == Inf, value := NA]
+arid_index_data_frame[value == -Inf, value := NA]
+summary(arid_index_data_frame$value)
 
 arid_index_data_frame[arid_index < 0 , arid_index := NA]
 summary(arid_index_data_frame$arid_index)
 # arid_index_data_frame[arid_index > 100 , arid_index := 20]
-min(arid_index_data_frame$arid_index, na.rm = T)
+min(arid_index_data_frame$value, na.rm = T)
 
-ggplot(data = arid_index_data_frame, aes(x = seq(1, length(arid_index)), y = arid_index)) +
+ggplot(data = arid_index_data_frame, aes(x = seq(1, length(value)), y = value)) +
   geom_line() + 
-  facet_wrap(vars(arid_comb))
+  facet_wrap(vars(combination))
+
+# arid_index_data_frame$variable <- rep('arid_index', length(arid_index_data_frame$x))
+# arid_index_data_frame <- arid_index_data_frame[, c('x', 'y', 'variable', 'arid_index', 'arid_comb')]
+# names(arid_index_data_frame) <- c('x', 'y', 'variable', 'value', 'combination')
 
 
+budyko_data <- rbind(arid_index_data_frame, evap_index_data_frame)
 
-budyko_data <- cbind(arid_index_data_frame,evap_index_data_frame[, 3])
 
-budyko_data[, arid_comb := str_replace(arid_comb, "pet", "e_pet")]
-
-budyko_data <- budyko_data[ , c("x", "y", "arid_index", "evap_index", "arid_comb")]
-names(budyko_data) <- c("x", "y", "arid_index", "evap_index", "combination")
+# budyko_data[, arid_comb := str_replace(arid_comb, "pet", "e_pet")]
+# 
+# budyko_data <- budyko_data[ , c("x", "y", "arid_index", "evap_index", "arid_comb")]
+# names(budyko_data) <- c("x", "y", "arid_index", "evap_index", "combination")
 
 saveRDS(object = budyko_data, file = paste0(path_save, "03_budyko_data.rds"))
 
