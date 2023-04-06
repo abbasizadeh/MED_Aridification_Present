@@ -112,11 +112,12 @@ p5 <- ggplot() +
 plot_grid(p1, p5, ncol = 2, align = "h", rel_widths = c(3, 1))
 
 
-budyko_entopy_KG_ment <- melt(budyko_entopy_KG, id.vars = c('kg_code', 'number_kg', 'max_entropy_kg'))
+budyko_entopy_KG_ment <- melt(budyko_entopy_KG, id.vars = c('kg_code', 'number_kg'))
 
 ggplot(data = budyko_entopy_KG_ment, aes(x = factor(kg_code), value)) +
-  geom_bar(aes(fill = variable), position = "dodge", stat = "identity") +
-  scale_fill_manual(values = c("#FF0000", "#C800C8" , "#F5A500", "#37C8FF"))
+  geom_bar(aes(fill = variable), position = "dodge", stat = "identity") 
+# +
+#   scale_fill_manual(values = c("#FF0000", "#C800C8" , "#F5A500", "#37C8FF"))
 
 
 
@@ -141,7 +142,7 @@ p1 <- ggplot(data = slope_budyko_data) +
 
 
 p2 <- ggplot() +
-  geom_col(data = budyko_entopy_comb, aes(y = combination, x = entropy_comb)) +
+  geom_col(data = budyko_entopy_comb, aes(y = combination, x = joint_entropy_comb)) +
   scale_x_reverse() +  
   scale_y_discrete(position = "right") +
   xlab("Joint enropy of PET/P and E/P") +
@@ -161,25 +162,25 @@ p2 <- ggplot() +
 plot_grid(p1, p2, ncol = 2, align = "h", rel_widths = c(3, 1)) 
 
 
-p3 <- ggplot() +
-  geom_col(data = budyko_entopy_comb, aes(y = combination, x = mutual_info_comb)) +
-  scale_x_reverse() +
-  scale_y_discrete(position = "right") +
-  xlab("Mutual information") +
-  theme(
-    axis.title.y = element_blank(),
-    # axis.text.x = element_blank(),
-    # axis.ticks.x = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.line   = element_blank(),
-    panel.border = element_blank(),
-    axis.text = element_text(size = 10),
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-  )
-
-plot_grid(p1, p3, ncol = 2, align = "h", rel_widths = c(3, 1))
+# p3 <- ggplot() +
+#   geom_col(data = budyko_entopy_comb, aes(y = combination, x = mutual_info_comb)) +
+#   scale_x_reverse() +
+#   scale_y_discrete(position = "right") +
+#   xlab("Mutual information") +
+#   theme(
+#     axis.title.y = element_blank(),
+#     # axis.text.x = element_blank(),
+#     # axis.ticks.x = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line   = element_blank(),
+#     panel.border = element_blank(),
+#     axis.text = element_text(size = 10),
+#     panel.grid.major.x = element_blank(),
+#     panel.grid.minor.x = element_blank(),
+#   )
+# 
+# plot_grid(p1, p3, ncol = 2, align = "h", rel_widths = c(3, 1))
 
 
 
@@ -223,8 +224,9 @@ plot_grid(p1, p5, ncol = 2, align = "h", rel_widths = c(3, 1))
 budyko_entopy_comb_melt <- melt(budyko_entopy_comb, id.vars = c('combination', 'number_comb'))
 
 ggplot(data = budyko_entopy_KG_ment, aes(x = factor(kg_code), value)) +
-  geom_bar(aes(fill = variable), position = "dodge", stat = "identity") +
-  scale_fill_manual(values = c("#FF0000", "#C800C8" , "#F5A500", "#37C8FF"))
+  geom_bar(aes(fill = variable), position = "dodge", stat = "identity") 
+# +
+#   scale_fill_manual(values = c("#FF0000", "#C800C8" , "#F5A500", "#37C8FF"))
 
 
 
@@ -252,10 +254,8 @@ ggplot(data = slope_budyko_data) +
 
 
 
-ggplot(data = slope_budyko_data) +
-  geom_point(aes(x = arid_index, y = evap_index, color = factor(kg_code)), size = 0.1) +
-  scale_color_manual(values =  KG_class) +
-  
+
+
 
 ## Figures
 to_plot_sf <- slope_budyko_data[, .(x, y, evap_index)] %>% 
@@ -278,3 +278,19 @@ entropy_med <- ggplot(to_plot_sf) +
         legend.title = element_text(size = 8))
 
 entropy_med
+
+
+
+test <- slope_budyko_data[kg_code == 15 ,]
+min_evap_ent_comb <- min(test$evap_entropy_comb)
+test2 <- test[evap_entropy_comb == min_evap_ent_comb, ]
+head(test2)
+
+unique(test2$combination)
+
+
+
+
+
+
+

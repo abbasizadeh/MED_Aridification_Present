@@ -60,7 +60,7 @@ colume_names = c("kg_code",
                  "number_kg", 
                  # "max_entropy_kg", 
                  # "mutual_information_kg",
-                  "arid_entrpy_kg",
+                  "arid_entropy_kg",
                  "evap_entropy_kg")
 entropy_data_frame = data.table(matrix(nrow = length(med_kg_codes), ncol = length(colume_names))) 
 colnames(entropy_data_frame) = colume_names
@@ -107,14 +107,14 @@ for(kg_ite in 1:length(med_kg_codes)){
   # # mutual entropy
   # entropy_data_frame$mutual_information_kg[kg_ite]  <- H1 + H2- entropy_data_frame$joint_entropy[kg_ite]
   
-  entropy_data_frame$arid_entrpy_kg[kg_ite] <- entropy(freq_tbl_arid)
+  entropy_data_frame$arid_entropy_kg[kg_ite] <- entropy(freq_tbl_arid)
   entropy_data_frame$evap_entropy_kg[kg_ite] <- entropy(freq_tbl_evap)
   
   
 }
 
 entropy_data_frame 
-ggplot(entropy_data_frame) + geom_point(aes(x = number_kg, y = arid_entrpy_kg))
+ggplot(entropy_data_frame) + geom_point(aes(x = number_kg, y = arid_entropy_kg))
 # normalize the values of entropy according to the number of points (grids) in each KG class
 # entropy_data_frame[, normalized_entropy:= entropy*number/sum(number)]
 
@@ -141,7 +141,7 @@ med_combination <- c(unique(budyko_data$combination))
 
 # define a data frame (entropy_data_frame) to save entropy values for each combination
 colume_names = c("combination", 
-                 "jiont_entropy_comb", 
+                 "joint_entropy_comb", 
                  "number_comb", 
                  # "mutual_info_comb",
                  "arid_entropy_comb",
@@ -171,7 +171,7 @@ for(comb_ite in 1:length(med_combination)){
     table(cut(budyko_data_dummie[, evap_index], breaks = evap_bin))
   
   # joint entropy
-  entropy_data_comb_frame$entropy_comb[comb_ite] <- entropy(freq_tbl)
+  entropy_data_comb_frame$joint_entropy_comb[comb_ite] <- entropy(freq_tbl)
   
   entropy_data_comb_frame$number_comb[comb_ite] <-
     length(budyko_data[combination == med_combination[comb_ite], arid_index])
