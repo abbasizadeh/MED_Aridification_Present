@@ -8,7 +8,8 @@ source('./code/source/functions.R')
 path_slope_files <- "~/shared/data_projects/med_datasets/2000_2019_data/slopes_p_minus_e/"
 path_save <-  "~/shared/data_projects/med_datasets/2000_2019_data/budyko/"
 
-budyko_data <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/04_1_budyko_data_joint_entropy.rds")
+# budyko_data <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/05_2_budyko_joint_entropy_comb.rds")
+evap_data <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/05_1_evaporative_entropy_KG.rds")
 
 
 unique(budyko_data$combination)
@@ -30,7 +31,7 @@ for (i in 1:length(slope_files)) {
   name_dummie <- read.table(text = slope_files[i], sep = "_", as.is = TRUE)
   
   # create combination name using the name of each file
-  combination_dummie <- paste0("e_pet_", name_dummie$V5, "_p_", name_dummie$V2)
+  combination_dummie <- paste0("e_", name_dummie$V5, "_p_", name_dummie$V2)
   
   # add the combination name to the data frame
   raster_data_frame_dummie$combination <- rep(combination_dummie, length(raster_data_frame_dummie$x))
@@ -51,20 +52,20 @@ for (i in 1:length(slope_files)) {
 
 
 # merge the slope data with budyko data
-names(slope_data) <- c('x', 'y', 'slope', 'combination')
-# saveRDS(slope_data, "slope_data")
+names(slope_data) <- c('x', 'y', 'slope_p_minus_e', 'evap_comb')
+
 # slope_budyko_data <- slope_data[budyko_data, on = .(x, y, combination), allow.cartesian = TRUE]
 
-slope_budyko_data <- merge(budyko_data, slope_data, by = c('x', 'y', 'combination'))
+slope_budyko_data <- merge(evap_data, slope_data, by = c('x', 'y', 'evap_comb'))
 
-slope_budyko_data[combination == "e_pet_terraclimate_p_persiann"]
-slope_data[combination == "e_pet_terraclimate_p_persiann"]
-budyko_data[combination == "e_pet_terraclimate_p_persiann"]
+slope_budyko_data[evap_comb == "e_terraclimate_p_persiann"]
+slope_data[evap_comb == "e_terraclimate_p_persiann"]
+# budyko_data[evap_comb == "e_terraclimate_p_persiann"]
 
-unique(slope_budyko_data$combination)
-unique(slope_data$combination)
-unique(budyko_data$combination)
+unique(slope_budyko_data$evap_comb)
+unique(slope_data$evap_comb)
+# unique(budyko_data$evap_comb)
 
 
-saveRDS(slope_budyko_data, paste0(path_save, "07_slope_entropy_budyko_data.rds"))
+saveRDS(slope_budyko_data, paste0(path_save, "08_evaporative_entropy_KG_slope.rds"))
 

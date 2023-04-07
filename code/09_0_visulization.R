@@ -5,23 +5,19 @@ source("./code/source/global_variables.R")
 source('./code/source/functions.R')
 
 
-slope_budyko_data <- 
-  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/07_slope_entropy_budyko_data.rds")
+evap_slope_data <- 
+  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/08_evaporative_entropy_KG_slope.rds")
 
+budyko_data <- 
+  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/05_2_budyko_joint_entropy_comb.rds")
 
-budyko_entopy_KG <- 
-  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/04_1_joint_entropy_KG.rds")
-
-budyko_entopy_comb <- 
-  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/04_1_joint_entropy_comb.rds")
-
-
+aridity_data <- 
+  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/05_0_aridity_entropy_KG.rds")
 
 
 
-
-p1 <- ggplot(data = slope_budyko_data) + 
-        geom_boxplot(aes(x = slope, y = factor(kg_code))) + 
+p1 <- ggplot(data = evap_slope_data) + 
+        geom_boxplot(aes(x = slope_p_minus_e, y = factor(kg_code))) + 
         xlab("slope in P-E [mm/month]") +
         ylab("KG class code") +
         geom_vline(xintercept = 0, color = "red") +
@@ -37,8 +33,11 @@ p1 <- ggplot(data = slope_budyko_data) +
   )
 
 
+p2_data <- data.frame(kg_code = unique(evap_slope_data$kg_code), entropy_kg = unique(evap_slope_data$entropy_kg))
+length(aridity_data[arid_comb == 'pet_em-earth-hs_p_chirps' & kg_code == 25, arid_index])
+
 p2 <- ggplot() +
-        geom_col(data = budyko_entopy_KG, aes(y = factor(kg_code), x = joint_entropy_kg)) +
+        geom_col(data = p2_data, aes(y = factor(kg_code), x = entropy_kg)) +
         scale_x_reverse() +  
   scale_y_discrete(position = "right") +
   xlab("Joint enropy of PET/P and E/P") +

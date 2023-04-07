@@ -16,9 +16,9 @@ precip_sim_files <- list.files(path_sim_precip_mean)
 evap_sim_files <- list.files(path_sim_evap_mean)
 
 
-precip_obs_files
-precip_sim_files
-evap_sim_files
+# precip_obs_files
+# precip_sim_files
+# evap_sim_files
 
 # precip data
 p_names_table <- read.table(text = precip_sim_files, sep = "_", as.is = TRUE)
@@ -47,8 +47,8 @@ for(name in  itr_start:itr_end){
   p_data_frame$raster[name] <- list(raster(paste0(path_obs_precip_mean, precip_obs_files[[index]])))
 }
 
-p_data_frame$p_raster_name[1]
-plot(p_data_frame$raster[1][[1]])
+# p_data_frame$p_raster_name[1]
+# plot(p_data_frame$raster[1][[1]])
 
 
 
@@ -69,7 +69,7 @@ for(name in 1:length(evap_sim_files)){
 
 
 # check
-e_data_frame$e_raster_name[2]
+# e_data_frame$e_raster_name[2]
 # plot(e_data_frame$raster[[2]])
  
 # tes_era5 <- as.data.frame(e_data_frame$raster[[2]],
@@ -129,7 +129,7 @@ for(p_itr in 1:length(p_data_frame$p_raster_name)) {
   }
 }
 
-# tidy up the data frames
+# tidy up the data frames (aridity)
 unique(arid_index_data_frame$combination)
 arid_index_data_frame
 arid_index_data_frame$layer <- NULL
@@ -139,6 +139,19 @@ arid_index_data_frame$variable <- rep('arid_index', length(arid_index_data_frame
 arid_index_data_frame <- arid_index_data_frame[, c('x', 'y', 'variable', 'value', 'combination')]
 arid_index_data_frame
 
+summary(arid_index_data_frame$value)
+arid_index_data_frame[value == Inf, value := NA]
+arid_index_data_frame[value == -Inf, value := NA]
+summary(arid_index_data_frame$value)
+
+arid_index_data_frame[value < 0 , value := NA]
+summary(arid_index_data_frame$value)
+# arid_index_data_frame[arid_index > 100 , arid_index := 20]
+min(arid_index_data_frame$value, na.rm = T)
+plot(arid_index_data_frame$value, type = "l")
+
+
+# tidy up the data frames (evap)
 unique(evap_index_data_frame$combination)
 evap_index_data_frame
 evap_index_data_frame$layer <- NULL
@@ -148,61 +161,37 @@ evap_index_data_frame$variable <- rep('evap_index', length(evap_index_data_frame
 evap_index_data_frame <- evap_index_data_frame[, c('x', 'y', 'variable', 'value', 'combination')]
 evap_index_data_frame
 
-# names(arid_index_data_frame) <- c("x", "y", "arid_index", "arid_comb")
-# names(evap_index_data_frame) <- c("x", "y", "evap_index", "evap_comb")
-
-
 # checking the values
 unique(evap_index_data_frame$combination)
 summary(evap_index_data_frame$value)
 evap_index_data_frame[value == Inf, value := NA]
 evap_index_data_frame[value == -Inf, value := NA]
 summary(evap_index_data_frame$value)
-
 plot(evap_index_data_frame$value, type = "l")
-plot(arid_index_data_frame$value, type = "l")
-
-ggplot(data = evap_index_data_frame, aes(x = seq(1, length(value)), y = value)) +
-  geom_line() + 
-  facet_wrap(vars(combination))
-
-
 
 # remove the negative values
 unique(arid_index_data_frame$combination)
 unique(evap_index_data_frame$combination)
 
-summary(arid_index_data_frame$value)
-arid_index_data_frame[value == Inf, value := NA]
-arid_index_data_frame[value == -Inf, value := NA]
-summary(arid_index_data_frame$value)
-
-arid_index_data_frame[arid_index < 0 , arid_index := NA]
-summary(arid_index_data_frame$arid_index)
-# arid_index_data_frame[arid_index > 100 , arid_index := 20]
-min(arid_index_data_frame$value, na.rm = T)
-
-ggplot(data = arid_index_data_frame, aes(x = seq(1, length(value)), y = value)) +
-  geom_line() + 
-  facet_wrap(vars(combination))
-
-# arid_index_data_frame$variable <- rep('arid_index', length(arid_index_data_frame$x))
-# arid_index_data_frame <- arid_index_data_frame[, c('x', 'y', 'variable', 'arid_index', 'arid_comb')]
-# names(arid_index_data_frame) <- c('x', 'y', 'variable', 'value', 'combination')
-
-
 budyko_data <- rbind(arid_index_data_frame, evap_index_data_frame)
+budyko_data <- na.omit(budyko_data)
+
+# define the categories
+budyko_data[, precip_category := sapply(X = combination, FUN = precip_category_fun, USE.NAMES = FALSE)]
+budyko_data[, pet_category := sapply(X = combination, FUN = pet_category_fun, USE.NAMES = FALSE)]
+
+unique(budyko_data$pet_category)
+unique(budyko_data$combination)
+
+# pet_category_fun("pet_em-earth-hs_p_era5")
+# pet_category_fun("pet_terraclimate_p_era5")
+# pet_category_fun("e_gleam_p_jra55")
 
 
-# budyko_data[, arid_comb := str_replace(arid_comb, "pet", "e_pet")]
-# 
-# budyko_data <- budyko_data[ , c("x", "y", "arid_index", "evap_index", "arid_comb")]
-# names(budyko_data) <- c("x", "y", "arid_index", "evap_index", "combination")
 
+
+# save data
 saveRDS(object = budyko_data, file = paste0(path_save, "03_budyko_data.rds"))
-
-
-
 
 
 
