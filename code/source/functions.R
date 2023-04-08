@@ -201,3 +201,49 @@ monthly_to_annual <- function(nc_file){
 }
 
 
+precip_category_fun <-function(comb) {
+  if(str_detect(comb, 'p_mswep|p_merra2|p_jra55|p_ncep-ncar|p_era5')){
+    # cat <- 'reanalysis'
+    return('reanalysis')
+  }else if(str_detect(comb, 'p_terraclimate|p_em-earth|p_jra55|p_gpcc')){
+    # cat <- 'observational'
+    return('observational')
+  }else if(str_detect(comb, 'p_cmorph|p_persiann|p_jra55|p_chirps')){
+    # cat <- 'satellite_based'
+    return('satellite_based')
+  }
+}
+
+pet_category_fun <-function(comb) {
+  if(str_detect(comb, 'pet_gleam|pet_terraclimate')){
+    # cat <- 'reanalysis'
+    return('combinational')
+  }else if(str_detect(comb, 'pet_em-earth-od|pet_em-earth-hs|pet_em-earth-mb')){
+    # cat <- 'observational'
+    return('temperature_based')
+  }else{
+    return('-')
+  }
+}
+
+
+# max entropy; calculated based on natural logarithm
+max_entropy <- function(sample_size, bin_size){
+  if(sample_size > bin_size){
+    
+    modulo <- sample_size %% bin_size
+    repeatition <- sample_size %/% bin_size
+    
+    max_H <- modulo * (repeatition + 1)/sample_size * log((repeatition + 1)/sample_size) + 
+      (bin_size - modulo) * ((repeatition)/sample_size)* log(repeatition/sample_size)
+    
+    return(-1 * max_H)
+    
+  }else{
+    
+    max_H <- log(sample_size)
+    
+    return(max_H)
+    
+  }
+}

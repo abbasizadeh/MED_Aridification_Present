@@ -4,24 +4,57 @@ source("./code/source/global_variables.R")
 # load functions
 source('./code/source/functions.R')
 
+path_budyko <- "~/shared/data_projects/med_datasets/2000_2019_data/budyko/"
+budyko_data <- readRDS(paste0(path_budyko, "04_1_budyko_data_joint_entropy.rds"))
+entropy_kg <- readRDS(paste0(path_budyko, "04_1_joint_entropy_MI_KG.rds"))
+entropy_comb <- readRDS(paste0(path_budyko, "04_1_joint_entropy_MI_comb.rds"))
 
-budyko_data <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data_04.rds")
-bins <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/bins_budyko.rds")
-library(viridis) 
+bins <- readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/04_0_bins_budyko_fu_equation.rds")
+ 
+# KG colors: 
+# 4: "#FF0000"  5: "#FF9696"  6: "#F5A500"  7: "#FFDC64"  8: "#FFFF00"  9: "#C8C800" 
+# 14: "#C8FF50" 15: "#64FF50" 17: "#FF00FF" 18: "#C800C8" 
+# 19: "#963296" 25: "#00FFFF" 26: "#37C8FF" 27: "#007D7D" 29: "#B2B2B2"
 
-KG_class <- c("#56B4E9", "#009E73", "#AACB73", "#00337C", 
-                       "#D55E00", "#CC79A7", "#159895", "#00FFD1", "#E11299", 
-                       "#867070", "#16FF00", "#820000","#FF0000" , "#A31ACB", "#FFEA20")
+KG_class <- c("#FF0000", "#FF9696" , "#F5A500", "#FFDC64", 
+                       "#FFFF00" , "#C8C800" , "#C8FF50", "#64FF50", "#FF00FF", 
+                       "#C800C8", "#963296", "#00FFFF", "#37C8FF", "#007D7D","#B2B2B2" )
+
+
+
+
+g1 <- budyko_data[variable == "arid_index",]
+g1spread <- spread(g1, key = variable, value = value)
+
+g2 <- budyko_data[variable == "evap_index",]
+g2spread <- spread(g2, key = variable, value = value)
+g2spread$combination <- str_replace(g2spread$combination, 'e_', 'pet_') 
+
+graph_data <- merge(g1, g2, by = c('x','y', 'kg_code'),allow.cartesian=TRUE)
+
+dcast(data = budyko_data,
+      formula = variable,
+      value.var = "value")
+
 
 ggplot(data = budyko_data) +
-  geom_point( aes(x = arid_index, y = evap_index, color = factor(kg_code)), size = 0.1) +
+  geom_point(aes(x = arid_index, y = evap_index, color = factor(kg_code)), size = 0.1) +
   scale_color_manual(values =  KG_class) + 
-  geom_line(data = bins, aes(x = aridity, y = evaporative, group = factor(Omega)), color = "grey") + 
+  geom_line(data = bins, aes(x = aridity, y = evaporative, group = factor(Omega)), color = "grey", alpha = 0.5) + 
   geom_abline(intercept = 0, slope = 1) +
   ylim(c(0, 3)) + xlim(c(0, 20)) + labs(x = "Aridity Index [PET/P]", y = "Evaporative Index [E/P]", color = "KG_class") +
   geom_segment(aes(x = 1, xend = 20, y = 1, yend = 1)) +
   guides(color = guide_legend(override.aes = list(size = 5))) +
-  facet_wrap(vars(combination)) 
+  facet_wrap(vars(combination)) +
+  theme_bw()
+
+
+
+# barcharts
+
+ggplot(data = entropy_kg) +
+  geom_col(aes(x = factor(kg_code), y = normalized_entropy_kg))
+
 
 # scale_colour_hue(l = 15, c = 300) +
 

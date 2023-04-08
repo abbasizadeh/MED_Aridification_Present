@@ -5,9 +5,12 @@ source("./code/source/global_variables.R")
 
 # load functions
 source('./code/source/functions.R')
+
 library(RcppDE)
 
 
+path_budyko_data <- "~/shared/data_projects/med_datasets/2000_2019_data/budyko/"
+path_Koppen_Geiger_raster <- "~/shared/data_projects/med_datasets/2000_2019_data/KG_classes/Beck_KG_present_025.tif"
 # evaporative = E/P
 # aridity = PET/P
 # w: omiga (free parameter)
@@ -57,8 +60,7 @@ Omega_bins <- c(unique(bins$Omega))
 
 
 # load aridity and evaporative indices from preprocess  
-path_load <- "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/"
-budyko_data <- readRDS(file = paste0(path_load, "budyko_data_03.rds"))
+budyko_data <- readRDS(file = paste0(path_budyko_data, "03_budyko_data.rds"))
 unique(budyko_data$combination)
 
 
@@ -67,12 +69,8 @@ budyko_data[arid_index == max(arid_index, na.rm = T), ]
 summary(budyko_data$arid_index)
 budyko_data[evap_index == max(evap_index, na.rm = T), ]
 summary(budyko_data$evap_index)
-
-
-# remove na value
-# budyko_data <- na.omit(budyko_data)
-
 budyko_data
+
 
 # add Koppen Geiger (KG) classes to the budyko_data 
 # convert the Budyko dataframe and into the shapefile
@@ -80,7 +78,7 @@ budyko_shape_file <- st_as_sf(budyko_data,
                               coords = c("x", "y"), 
                               crs = 4326)
 # read Koppen Geiger raster
-kg_raster <- raster("~/shared/data_projects/med_datasets/2000_2019_data/KG_classes/Beck_KG_present_025.tif")
+kg_raster <- raster(path_Koppen_Geiger_raster)
 #~/github_projects/MED_Aridification_Present/data/archive/KG_classes
 
 # extract the KG classes
@@ -90,11 +88,6 @@ kg_extract <-
     df = FALSE, factors = FALSE
   )
 
-# add KG classes to the shape file
-
-budyko_shape_file$KG <- kg_extract
-
-# budyko_KG_data <- data.table(budyko_shape_file)
 
 # add KG classes to the budyko data frame file
 budyko_data$kg_code <- kg_extract
@@ -141,6 +134,7 @@ for (i in 1:length(budyko_data$arid_index)) {
   }
   
 }
+
 
 # add the estimated omega to Budyko data frame budyko_data
 budyko_data$estimated_omega <- estimated_omega_vec
@@ -193,9 +187,9 @@ budyko_data <- merge(budyko_data, entropy_data_frame, by = 'kg_code')
 
 budyko_data[kg_code == 0,]
 
-saveRDS(budyko_data, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/budyko_data_04.rds")
-saveRDS(entropy_data_frame, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/entropy_data_frame.rds")
-saveRDS(bins, "~/shared/data_projects/med_datasets/2000_2019_data/sim/budyko/evaporative_aridity_indices/bins_budyko.rds")
+saveRDS(budyko_data, paste0(path_budyko_data, "04_0_budyko_data_entropy_fu_equation.rds"))
+saveRDS(entropy_data_frame, paste0(path_budyko_data, "04_0_entropy_fu_equation.rds"))
+saveRDS(bins, paste0(path_budyko_data, "04_0_bins_budyko_fu_equation.rds"))
 
 
 
