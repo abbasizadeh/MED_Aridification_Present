@@ -5,26 +5,23 @@ source("./code/source/global_variables.R")
 source('./code/source/functions.R')
 
 
-evap_slope_data <- 
-  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/08_evaporative_entropy_KG_slope.rds")
-
 budyko_data <- 
   readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/05_2_budyko_joint_entropy_comb.rds")
+
+evap_slope_data <- 
+  readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/08_evaporative_entropy_KG_slope.rds")
 
 aridity_data <- 
   readRDS( "~/shared/data_projects/med_datasets/2000_2019_data/budyko/05_0_aridity_entropy_KG.rds")
 
 
 
-p1 <- ggplot(data = evap_slope_data) + 
-        geom_boxplot(aes(x = slope_p_minus_e, y = factor(kg_code))) + 
-        xlab("slope in P-E [mm/month]") +
-        ylab("KG class code") +
-        geom_vline(xintercept = 0, color = "red") +
+plot_slope_kg <- ggplot(data = evap_slope_data) +
+  geom_boxplot(aes(x = slope_p_minus_e, y = factor(kg_code))) +
+  xlab("slope in P-E [mm/month]") +
+  ylab("KG class code") +
+  geom_vline(xintercept = 0, color = "red") +
   theme(
-    # axis.title.x = element_blank(),
-    # axis.text.x = element_blank(),
-    # axis.ticks.x = element_blank(),
     axis.line   = element_blank(),
     panel.border = element_blank(),
     axis.text = element_text(size = 10),
@@ -32,19 +29,29 @@ p1 <- ggplot(data = evap_slope_data) +
     panel.grid.minor.x = element_blank()
   )
 
+# calculate normalized entropy for aridity index
+arid_bin <- c(0, 1, 2, 5, 20, ceiling(max(aridity_data[,arid_index]))) 
+bin_number <- length(arid_bin) - 1
+p2_data <- data.table(kg_code = unique(aridity_data$kg_code), entropy_kg = unique(aridity_data$entropy_kg))
+kg_number <- aridity_data[arid_comb == 'pet_terraclimate_p_merra2', length(arid_index), by = kg_code]
+p2_data[, number :=  kg_number$V1][, bin_size := bin_number]
+p2_data[, .(number, bin_size) ]
+p2_data[,max_entropy_kg := NA]
+for (i in 1:length(p2_data$number)) {
+    p2_data$max_entropy_kg[i] <- max_entropy(sample_size = p2_data$number[i], bin_size = 5)}
+p2_data[, normalized_entropy := entropy_kg/max_entropy_kg]
 
-p2_data <- data.frame(kg_code = unique(evap_slope_data$kg_code), entropy_kg = unique(evap_slope_data$entropy_kg))
-length(aridity_data[arid_comb == 'pet_em-earth-hs_p_chirps' & kg_code == 25, arid_index])
 
-p2 <- ggplot() +
-        geom_col(data = p2_data, aes(y = factor(kg_code), x = entropy_kg)) +
+
+# length(aridity_data[arid_comb == 'pet_em-earth-hs_p_chirps' & kg_code == 25, arid_index])
+# entropy of data
+plot_normalized_entrpy_kg <- ggplot() +
+        geom_col(data = p2_data, aes(y = factor(kg_code), x = normalized_entropy)) +
         scale_x_reverse() +  
   scale_y_discrete(position = "right") +
-  xlab("Joint enropy of PET/P and E/P") +
+  xlab("normalized enropy of PET/P") +
   theme(
     axis.title.y = element_blank(),
-    # axis.text.x = element_blank(),
-    # axis.ticks.x = element_blank(),
     axis.line   = element_blank(),
     panel.border = element_blank(),
     axis.text = element_text(size = 10),
@@ -52,7 +59,116 @@ p2 <- ggplot() +
     panel.grid.minor.x = element_blank(),
   )
 
-plot_grid(p1, p2, ncol = 2, align = "h", rel_widths = c(3, 1)) 
+
+plot_grid(plot_slope_kg, plot_normalized_entrpy_kg, ncol = 2, align = "h", rel_widths = c(3, 1)) 
+
+
+# visualize evaporative entropy vs slope kg
+# calculate normalized entropy for evap index
+evap_bin <- c(seq(from = 0, 
+                  to = (ceiling(max(evap_slope_data[,evap_index])) + ceiling(max(evap_slope_data[,evap_index]))%%5) , 
+                  by = 0.5))
+
+bin_number <- length(evap_bin) - 1
+p3_data <- data.table(kg_code = unique(evap_slope_data$kg_code), entropy_kg = unique(evap_slope_data$entropy_kg))
+kg_number <- evap_slope_data[evap_comb == 'e_terraclimate_p_merra2', length(evap_index), by = kg_code]
+p3_data[, number :=  kg_number$V1][, bin_size := bin_number]
+p3_data[, .(number, bin_size) ]
+p3_data[,max_entropy_kg := NA]
+for (i in 1:length(p3_data$number)) {
+  p3_data$max_entropy_kg[i] <- max_entropy(sample_size = p3_data$number[i], bin_size = 64)
+  }
+p3_data[, normalized_entropy := entropy_kg/max_entropy_kg]
+
+plot_normalized_entrpy_evap_kg <- ggplot() +
+  geom_col(data = p2_data, aes(y = factor(kg_code), x = normalized_entropy)) +
+  scale_x_reverse() +  
+  scale_y_discrete(position = "right") +
+  xlab("normalized enropy of E/P") +
+  theme(
+    axis.title.y = element_blank(),
+    axis.line   = element_blank(),
+    panel.border = element_blank(),
+    axis.text = element_text(size = 10),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+  )
+
+
+plot_grid(plot_slope_kg, plot_normalized_entrpy_evap_kg, ncol = 2, align = "h", rel_widths = c(3, 1)) 
+
+
+
+
+
+
+
+# visualize the categories of precip datasets
+plot_precip_category <- ggplot(data = evap_slope_data) +
+  geom_boxplot(aes(y = slope_p_minus_e, x = precip_cat_evap), outlier.shape = NA) +
+  xlab("dataset category") +
+  ylab("slope in P-E [mm/month]") +
+  ylim(c(-0.1, 0.1)) +
+  geom_hline(yintercept = 0, color = "red") +
+  theme(
+    # axis.line   = element_blank(),
+    # panel.border = element_blank(),
+    # axis.text = element_text(size = 10),
+    # panel.grid.major.x = element_blank(),
+    # panel.grid.minor.x = element_blank()
+  )
+plot_precip_category
+
+
+# bin_number <- length(evap_bin) - 1
+p4_data <- data.table(category = unique(evap_slope_data$precip_cat_evap), entropy_kg = unique(evap_slope_data$entropy_precip_cat_evap))
+cat_number <- evap_slope_data[, length(evap_index), by = precip_cat_evap]
+bin_number <- length(evap_bin) - 1
+p4_data[, number :=  cat_number$V1][, bin_size := bin_number]
+p4_data[,max_entropy_kg := NA]
+for (i in 1:length(p4_data$number)) {
+  p4_data$max_entropy_kg[i] <- max_entropy(sample_size = p4_data$number[i], bin_size = 64)
+}
+p4_data[, normalized_entropy := entropy_kg/max_entropy_kg]
+
+
+# plot_entrpy_precip_category_data <- 
+#   data.table(kg_code = unique(evap_slope_data$kg_code), entropy_kg = unique(evap_slope_data$entropy_kg))
+
+plot_entrpy_precip_category <- ggplot() +
+  geom_col(data = p4_data, aes(x = factor(category), y = normalized_entropy)) +
+  scale_y_reverse() +  
+  scale_x_discrete(position = "top") +
+  ylab("normalized enropy of E/P") +
+  theme(
+    axis.title.x = element_blank(),
+    # axis.text.x = element_blank(),
+    # axis.ticks.x = element_blank(),
+    # axis.line   = element_blank(),
+    # panel.border = element_blank(),
+    # axis.text = element_text(size = 10),
+    # panel.grid.major.x = element_blank(),
+    # panel.grid.minor.x = element_blank(),
+  )
+plot_entrpy_precip_category
+# plot_grid(plot_entrpy_precip_category, plot_precip_category, nrow = 2, align = "v", rel_heights = c(1, 3)) 
+
+denity_cat <- ggplot(evap_slope_data, aes(x = log(evap_index))) +
+  geom_density() +
+  
+  facet_wrap(vars(precip_cat_evap))
+denity_cat
+
+plot_grid(denity_cat, plot_entrpy_precip_category, plot_precip_category,  nrow = 3, align = "v", rel_heights = c(1, 1, 3)) 
+
+# 
+
+
+
+
+
+
+
 
 
 p3 <- ggplot() +
@@ -70,6 +186,7 @@ p3 <- ggplot() +
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
   )
+
 
 plot_grid(p1, p3, ncol = 2, align = "h", rel_widths = c(3, 1))
 
