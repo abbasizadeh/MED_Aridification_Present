@@ -12,7 +12,7 @@ source('./code/source/functions.R')
 path_budyko_data <- "~/shared/data_projects/med_datasets/2000_2019_data/budyko/"
 
 
-budyko_data <- readRDS(paste0(path_budyko_data, '04_0_budyko_data.rds'))
+budyko_data <- readRDS(paste0(path_budyko_data, '04_budyko_data.rds'))
 
 
 
@@ -21,6 +21,7 @@ arid_bin <- c(0, 1, 2, 5, 20, ceiling(max(budyko_data[,arid_index])))
 evap_bin <- c(seq(from = 0, 
                   to = (ceiling(max(budyko_data[,evap_index])) + ceiling(max(budyko_data[,evap_index]))%%5) , 
                   by = 0.5))
+
 
 # relative entropy for each kg and each comb
 budyko_data[, relaive_entropy_comb_kg := 
@@ -32,6 +33,14 @@ budyko_data[, relaive_entropy_comb_kg :=
                    }, 
             by = .(combination, kg_code)]
 
+budyko_data[, relaive_entropy_comb := 
+                   {
+                     freq_tbl <-
+                       table(cut(arid_index, breaks = arid_bin), 
+                             cut(evap_index, breaks = evap_bin))
+                     entropy(freq_tbl)
+                   }, 
+            by = .(combination)]
 
 
 # relative entropy for each kg 
@@ -42,7 +51,17 @@ budyko_data[, relaive_entropy_precip_cat_arid_kg:=
                              cut(evap_index, breaks = evap_bin))
                      entropy(freq_tbl)
                    }, 
-            by = .(precip_cat_arid, kg_code)]
+            by = .(precip_category, kg_code)]
+
+
+budyko_data[, relaive_entropy_precip_cat_arid:= 
+                   {
+                     freq_tbl <-
+                       table(cut(arid_index, breaks = arid_bin), 
+                             cut(evap_index, breaks = evap_bin))
+                     entropy(freq_tbl)
+                   }, 
+            by = .(precip_category)]
 
 
 # relative entropy for each kg
@@ -53,7 +72,17 @@ budyko_data[, relaive_entropy_precip_cat_kg:=
                              cut(evap_index, breaks = evap_bin))
                      entropy(freq_tbl)
                    }, 
-            by = .(precip_cat, kg_code)]
+            by = .(precip_category, kg_code)]
+
+
+budyko_data[, relaive_entropy_precip_cat:= 
+                   {
+                     freq_tbl <-
+                       table(cut(arid_index, breaks = arid_bin), 
+                             cut(evap_index, breaks = evap_bin))
+                     entropy(freq_tbl)
+                   }, 
+            by = .(precip_category)]
 
 
 head(budyko_data)

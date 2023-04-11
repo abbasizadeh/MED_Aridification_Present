@@ -83,7 +83,7 @@ for(name in 1:length(evap_sim_files)){
 
 
 # creating the evaporative and aridity indices for each pixel and save it to its corresponding data frame/table
-colume_names = c("x", "y", "layer", "value", "combination") 
+colume_names = c("x", "y", "layer", "value", "combination", 'precip_data') 
 evap_index_data_frame = data.table(matrix(nrow = 0, ncol = length(colume_names))) 
 arid_index_data_frame = data.table(matrix(nrow = 0, ncol = length(colume_names))) 
 colnames(evap_index_data_frame) = colume_names
@@ -110,12 +110,15 @@ for(p_itr in 1:length(p_data_frame$p_raster_name)) {
                     na.rm = TRUE)
     
     # add column of associated combination
-    dummie$combination <-
-      rep(paste0(
-        e_data_frame$e_raster_name[e_itr],
-        "_",
-        p_data_frame$p_raster_name[p_itr]
-      ))
+    dummie$combination <- rep(e_data_frame$e_raster_name[e_itr])
+      # rep(paste0(
+      #   e_data_frame$e_raster_name[e_itr],
+      #   "_",
+      #   p_data_frame$p_raster_name[p_itr]
+      # ))
+    
+    dummie$precip_data <- rep(p_data_frame$p_raster_name[p_itr])
+      
     # data from era5 has been removed due to problem in pet_era5 (negative numbers)
     if (startsWith(e_data_frame$e_raster_name[e_itr], "pet")) { #  & (e_data_frame$e_raster_name[e_itr]!= "pet_era5")
       
@@ -136,7 +139,7 @@ arid_index_data_frame$layer <- NULL
 arid_index_data_frame
 
 arid_index_data_frame$variable <- rep('arid_index', length(arid_index_data_frame$x))
-arid_index_data_frame <- arid_index_data_frame[, c('x', 'y', 'variable', 'value', 'combination')]
+arid_index_data_frame <- arid_index_data_frame[, c('x', 'y', 'variable', 'value', 'combination', 'precip_data')]
 arid_index_data_frame
 
 summary(arid_index_data_frame$value)
@@ -158,7 +161,7 @@ evap_index_data_frame$layer <- NULL
 evap_index_data_frame
 
 evap_index_data_frame$variable <- rep('evap_index', length(evap_index_data_frame$x))
-evap_index_data_frame <- evap_index_data_frame[, c('x', 'y', 'variable', 'value', 'combination')]
+evap_index_data_frame <- evap_index_data_frame[, c('x', 'y', 'variable', 'value', 'combination', 'precip_data')]
 evap_index_data_frame
 
 # checking the values
@@ -177,16 +180,17 @@ budyko_data <- rbind(arid_index_data_frame, evap_index_data_frame)
 budyko_data <- na.omit(budyko_data)
 
 # define the categories
-budyko_data[, precip_category := sapply(X = combination, FUN = precip_category_fun, USE.NAMES = FALSE)]
+budyko_data[, precip_category := sapply(X = precip_data, FUN = precip_category_fun, USE.NAMES = FALSE)]
 budyko_data[, pet_category := sapply(X = combination, FUN = pet_category_fun, USE.NAMES = FALSE)]
 
 unique(budyko_data$pet_category)
 unique(budyko_data$combination)
+unique(budyko_data$precip_category)
 
 # pet_category_fun("pet_em-earth-hs_p_era5")
 # pet_category_fun("pet_terraclimate_p_era5")
 # pet_category_fun("e_gleam_p_jra55")
-
+names(budyko_data) <- c('x', 'y', 'variable', 'value', 'pet_e_data', 'precip_data', 'precip_category', 'pet_category')
 
 
 

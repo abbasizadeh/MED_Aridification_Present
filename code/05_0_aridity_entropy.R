@@ -13,10 +13,11 @@ path_budyko_data <- "~/shared/data_projects/med_datasets/2000_2019_data/budyko/"
 
 aridity_data <- readRDS(paste0(path_budyko_data, '04_aridity_data.rds'))
 
-
 # define bins for entropy
 arid_bin <- c(0, 1, 2, 5, 20, ceiling(max(aridity_data [,arid_index]))) #seq(from = 0, to = ceiling(budyko_data_dummie[, max(arid_index)]), by = 1)
 
+aridity_data[, arid_comb := paste0(pet_data, '_', precip_data)]
+aridity_data[, cat_comb := paste0(pet_category, '_', precip_category)]
 
 # entropy for each kg and each comb
 aridity_data[, entropy_kg := 
@@ -47,7 +48,7 @@ aridity_data[, entropy_comb :=
 aridity_data[, entropy_precip_cat_arid := 
                {freq_tbl_arid <- table(cut(arid_index, breaks = arid_bin))
                 entropy(freq_tbl_arid)
-                 }, by = .(precip_cat_arid)]
+                 }, by = .(precip_category)]
 
 # entropy for evap dataset category for the whole med
 aridity_data[, entropy_pet_category := 
@@ -56,17 +57,18 @@ aridity_data[, entropy_pet_category :=
                  }, by = .(pet_category)]
 
 # entropy for precip and evap datasets category for the whole med
+
 aridity_data[, entropy_precip_cat_pet_cat := 
                {freq_tbl_arid <- table(cut(arid_index, breaks = arid_bin))
                 entropy(freq_tbl_arid)
-                 }, by = .(precip_cat_arid, pet_category)]
+                 }, by = .(precip_category, pet_category)]
 
 
 # entropy for precip dataset category for the whole med
 aridity_data[, entropy_precip_cat_arid_kg := 
                {freq_tbl_arid <- table(cut(arid_index, breaks = arid_bin))
                 entropy(freq_tbl_arid)
-                 }, by = .(precip_cat_arid, kg_code)]
+                 }, by = .(precip_category, kg_code)]
 
 # entropy for evap dataset category for the whole med
 aridity_data[, entropy_pet_category_kg := 
@@ -74,11 +76,26 @@ aridity_data[, entropy_pet_category_kg :=
                 entropy(freq_tbl_arid)
                  }, by = .(pet_category, kg_code)]
 
+
 # entropy for precip and evap datasets category for the whole med
-aridity_data[, entropy_precip_cat_pet_cat_kg := 
+aridity_data[, entropy_cat_comb := 
                {freq_tbl_arid <- table(cut(arid_index, breaks = arid_bin))
                 entropy(freq_tbl_arid)
-                 }, by = .(precip_cat_arid, pet_category, kg_code)]
+                 }, by = .(cat_comb)]
+# entropy for precip and evap datasets category for the whole med
+aridity_data[, entropy_cat_comb_kg := 
+               {freq_tbl_arid <- table(cut(arid_index, breaks = arid_bin))
+                entropy(freq_tbl_arid)
+                 }, by = .(cat_comb, kg_code)]
+
+
+
+
+# # entropy for precip and evap datasets category for the whole med
+# aridity_data[, entropy_cat_comb := 
+#                {freq_tbl_arid <- table(cut(arid_index, breaks = arid_bin))
+#                 entropy(freq_tbl_arid)
+#                  }, by = .(precip_cat_arid, pet_category, kg_code)]
 
 
 aridity_data

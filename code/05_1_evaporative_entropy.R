@@ -13,6 +13,7 @@ path_budyko_data <- "~/shared/data_projects/med_datasets/2000_2019_data/budyko/"
 
 evaporative_data <- readRDS(paste0(path_budyko_data, '04_evaporative_data.rds'))
 
+evaporative_data[, evap_comb := paste0(e_data, '_', precip_data)]
 
 # define bins for entropy
 evap_bin <- c(seq(from = 0, to = (ceiling(max(evaporative_data[,evap_index])) + ceiling(max(evaporative_data[,evap_index]))%%5) 
@@ -47,7 +48,7 @@ evaporative_data[, entropy_comb :=
 evaporative_data[, entropy_precip_cat_evap := 
                {freq_tbl_evap <- table(cut(evap_index, breaks = evap_bin))
                 entropy(freq_tbl_evap)
-                 }, by = .(precip_cat_evap)]
+                 }, by = .(precip_category)]
 
 # entropy for evap dataset category for the whole med
 # evaporative_data[, entropy_pet_category := 
@@ -66,7 +67,7 @@ evaporative_data[, entropy_precip_cat_evap :=
 evaporative_data[, entropy_precip_cat_evap_kg := 
                {freq_tbl_evap <- table(cut(evap_index, breaks = evap_bin))
                 entropy(freq_tbl_evap)
-                 }, by = .(precip_cat_evap, kg_code)]
+                 }, by = .(precip_category, kg_code)]
 
 
 # # entropy for evap dataset category for the whole med
