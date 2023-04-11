@@ -61,30 +61,32 @@ med_kg_codes <- c(unique(budyko_data$kg_code))
 # aridity dataframe
 budyko_data_arid <- budyko_data[variable == 'arid_index',]
 budyko_data_arid <- spread(budyko_data_arid, key = variable, value = value)
-names(budyko_data_arid) <- c('x', 'y', 'arid_comb', 'precip_cat_arid', 'pet_category', 'kg_code', 'arid_index')
+names(budyko_data_arid) <- c('x', 'y', 'pet_data', 'precip_data',  'precip_category', 'pet_category', 'kg_code', 'arid_index')
 saveRDS(budyko_data_arid, paste0(path_budyko_data, "04_aridity_data.rds"))
 
 
 # evaporative dataframe
 budyko_data_evap <- budyko_data[variable == 'evap_index',]
 budyko_data_evap <- spread(budyko_data_evap, key = variable, value = value)
-names(budyko_data_evap) <- c('x', 'y', 'evap_comb', 'precip_cat_evap', 'e_category', 'kg_code', 'evap_index')
+names(budyko_data_evap) <- c('x', 'y', 'e_data', 'precip_data',  'precip_category', 'pet_category', 'kg_code', 'evap_index')
 saveRDS(budyko_data_evap, paste0(path_budyko_data, "04_evaporative_data.rds"))
 
 
+
 # joint 
-budyko_data <- join(budyko_data_arid, budyko_data_evap, by = c('x', 'y', 'kg_code'), type = "left")
+budyko_data <- join(budyko_data_arid, budyko_data_evap, by = c('x', 'y', 'kg_code', 'precip_data', 'precip_category'), type = "left")
 
 # add some informative columns
-unique(budyko_data$arid_comb)
+unique(budyko_data$combination)
 
-budyko_data[, combination := paste0(arid_comb, '_&_',evap_comb)] 
+budyko_data[, combination := paste0(precip_data, '_', pet_data, '_',e_data)] 
 
 unique(budyko_data$combination)
 # budyko_data$arid_comb = NULL 
 # budyko_data$evap_comb = NULL
 
-budyko_data[, precip_cat := paste0('arid_', precip_cat_arid, '_&_', 'evap_',precip_cat_evap)] 
+# budyko_data[, precip_cat := paste0('arid_', precip_cat_arid, '_&_', 'evap_',precip_cat_evap)] 
+
 
 # budyko_data$arid_precip_cat = NULL 
 # budyko_data$evap_precip_cat = NULL

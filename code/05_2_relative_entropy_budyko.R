@@ -51,7 +51,8 @@ budyko_data[, relaive_entropy_precip_cat_arid_kg:=
                              cut(evap_index, breaks = evap_bin))
                      entropy(freq_tbl)
                    }, 
-            by = .(precip_cat_arid, kg_code)]
+            by = .(precip_category, kg_code)]
+
 
 budyko_data[, relaive_entropy_precip_cat_arid:= 
                    {
@@ -60,7 +61,7 @@ budyko_data[, relaive_entropy_precip_cat_arid:=
                              cut(evap_index, breaks = evap_bin))
                      entropy(freq_tbl)
                    }, 
-            by = .(precip_cat_arid)]
+            by = .(precip_category)]
 
 
 # relative entropy for each kg
@@ -71,7 +72,8 @@ budyko_data[, relaive_entropy_precip_cat_kg:=
                              cut(evap_index, breaks = evap_bin))
                      entropy(freq_tbl)
                    }, 
-            by = .(precip_cat, kg_code)]
+            by = .(precip_category, kg_code)]
+
 
 budyko_data[, relaive_entropy_precip_cat:= 
                    {
@@ -80,7 +82,7 @@ budyko_data[, relaive_entropy_precip_cat:=
                              cut(evap_index, breaks = evap_bin))
                      entropy(freq_tbl)
                    }, 
-            by = .(precip_cat)]
+            by = .(precip_category)]
 
 
 head(budyko_data)
