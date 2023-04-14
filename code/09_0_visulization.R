@@ -394,8 +394,6 @@ plot_precip_category_without_sahara <-
 plot_precip_category_without_sahara
 
 
-
-
 cat_number <- evap_slope_data_without_sahara[, length(evap_index), by = precip_cat_evap]
 bin_number <- length(evap_bin) - 1
 precip_cat_entropy_without_sahara[, number :=  cat_number$V1][, bin_size := bin_number]
@@ -444,19 +442,7 @@ plot_grid(plot_entrpy_precip_category_without_sahara, plot_precip_category_witho
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# ==============================================================================
 # aridity dataset categories for the whole med
 fill_color <- c(temperature_based_observational = '#4D96FF', 
                 temperature_based_reanalysis = '#36AE7C', 
@@ -465,12 +451,8 @@ fill_color <- c(temperature_based_observational = '#4D96FF',
                 combinational_reanalysis = '#A1DE93', 
                 combinational_satellite_based = '#FFFD95')
 
-
-
-
 p4_data <- data.table(entropy_comb = unique(aridity_data$entropy_cat_comb), 
                       cat_comb = unique(aridity_data$cat_comb))
-
 
 plot_aridity <-  
   ggplot(data = aridity_data, aes(x = cat_comb, y = arid_index, fill = cat_comb)) +
@@ -486,8 +468,9 @@ plot_aridity <-
   geom_hline(aes(yintercept = 2), color = "#1497D4") +
   geom_hline(aes(yintercept = 5), color = "#FFD301") +
   geom_hline(aes(yintercept = 20), color = "#FFB921") +
-  scale_y_continuous(breaks = c(0, 1, 2, 5, 20), limits = c(0, 21)) +
+  scale_y_continuous(breaks = c(0, 1, 2, 5, 20), limits = c(0, 7)) +
   # annotate("text", x=1, y=0, label="Some text", angle=90)
+  ggtitle('The aridity index for the whole Mediterranean region') +
   theme_bw() +
   theme(
     axis.title = element_text(size = 15),
@@ -506,8 +489,41 @@ plot_aridity <-
   # guides(shape = guide_legend(override.aes = list(size = 0.5)))
 plot_aridity 
 
-#
+aridity_data_without_desert <- aridity_data[kg_code != 4, ]
+plot_aridity_without_desert <-  
+  ggplot(data = aridity_data_without_desert , aes(x = cat_comb, y = arid_index, fill = cat_comb)) +
+  geom_violin() + 
+  scale_fill_manual(values = fill_color) +
+  # scale_color_manual(values = color_color) +
+  geom_boxplot(width=0.1, outlier.shape = NA,fill = "white") +
+  labs(y = 'Aridity index PET/P', x ="Dataset categories") +
+  stat_summary(fun.y=mean, geom="point", size=2, color="black") +
+  # ylim(c(0, 20)) + #xlab('aridity index PET/P') +
+  geom_hline(aes(yintercept = 0), color = "black") +
+  geom_hline(aes(yintercept = 1), color = "#0047AC") +
+  geom_hline(aes(yintercept = 2), color = "#1497D4") +
+  geom_hline(aes(yintercept = 5), color = "#FFD301") +
+  geom_hline(aes(yintercept = 20), color = "#FFB921") +
+  scale_y_continuous(breaks = c(0, 1, 2, 5, 20), limits = c(0, 7)) +
+  # annotate("text", x=1, y=0, label="Some text", angle=90)
+  ggtitle('The aridity index for the Mediterranean region withour Sahara') +
+  theme_bw() +
+  theme(
+    axis.title = element_text(size = 15),
+    axis.text = element_text(size= 15),
+    # axis.ticks.y = element_blank(),
+    # axis.line  = element_blank(),
+    # panel.border = element_blank()
+    # legend.position = c(0.75, 0.5),
+    legend.title = element_blank(),
+    axis.text.x = element_text(size = 10, face = 'bold'),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    legend.position = 'none'#c(0.8, 0.2)
+  )
 
+  # guides(shape = guide_legend(override.aes = list(size = 0.5)))
+plot_aridity_without_desert
 
 #=============================================================================== 
 # aridity dataset categories for each KG
@@ -645,233 +661,130 @@ Dfa
 Dfb
 Dfc
 ET
+
 #=============================================================================== 
+# calculation of entropy after removing Sahara
+evap_slope_data[, entropy_evap_comb := 
+                                 {freq_tbl_evap <- table(cut(evap_index, breaks = evap_bin))
+                                 entropy(freq_tbl_evap)
+                                 }, by = .(evap_comb)]
+
+p_minus_e_map_data <- evap_slope_data[entropy_evap_comb == min(entropy_evap_comb),]
 
 
 
 
+# map
+path_shape_land <- ('~/shared/data_projects/ithaca/misc/shp_land/GSHHS_f_L1.shp')
+land_shape <- st_read(path_shape_land)
+plot(land_shape)
 
 
+# box <- c(xmin  = -10.25, xmax = 40.25, ymin = 29.75, ymax = 45.25)
+# land_shape_med <- st_crop(land_shape, box)
 
-
-
-
-
-
-
-# p3 <- ggplot() +
-#   geom_col(data = budyko_entopy_KG, aes(y = factor(kg_code), x = mutual_information_kg)) +
-#   scale_x_reverse() +
-#   scale_y_discrete(position = "right") +
-#   xlab("Mutual Infromation of PET/P and E/P") +
-#   theme(
-#     axis.title.y = element_blank(),
-#     # axis.text.x = element_blank(),
-#     # axis.ticks.x = element_blank(),
-#     axis.line   = element_blank(),
-#     panel.border = element_blank(),
-#     axis.text = element_text(size = 10),
-#     panel.grid.major.x = element_blank(),
-#     panel.grid.minor.x = element_blank(),
-#   )
-# 
-# 
-# plot_grid(p1, p3, ncol = 2, align = "h", rel_widths = c(3, 1))
-# 
-# 
-# p4 <- ggplot() +
-#   geom_col(data = budyko_entopy_KG, aes(y = factor(kg_code), x = arid_entrpy_kg)) +
-#   scale_x_reverse() +
-#   scale_y_discrete(position = "right") +
-#   xlab("Entropy of PET/P") +
-#   theme(
-#     axis.title.y = element_blank(),
-#     # axis.text.x = element_blank(),
-#     # axis.ticks.x = element_blank(),
-#     axis.line   = element_blank(),
-#     panel.border = element_blank(),
-#     axis.text = element_text(size = 10),
-#     panel.grid.major.x = element_blank(),
-#     panel.grid.minor.x = element_blank(),
-#   )
-# 
-# plot_grid(p1, p4, ncol = 2, align = "h", rel_widths = c(3, 1))
-# 
-# p5 <- ggplot() +
-#   geom_col(data = budyko_entopy_KG, aes(y = factor(kg_code), x = evap_entropy_kg)) +
-#   scale_x_reverse() +
-#   scale_y_discrete(position = "right") +
-#   xlab("Entropy of E/P") +
-#   theme(
-#     axis.title.y = element_blank(),
-#     # axis.text.x = element_blank(),
-#     # axis.ticks.x = element_blank(),
-#     axis.line   = element_blank(),
-#     panel.border = element_blank(),
-#     axis.text = element_text(size = 10),
-#     panel.grid.major.x = element_blank(),
-#     panel.grid.minor.x = element_blank(),
-#   )
-# 
-# plot_grid(p1, p5, ncol = 2, align = "h", rel_widths = c(3, 1))
-# 
-# 
-# budyko_entopy_KG_ment <- melt(budyko_entopy_KG, id.vars = c('kg_code', 'number_kg'))
-# 
-# ggplot(data = budyko_entopy_KG_ment, aes(x = factor(kg_code), value)) +
-#   geom_bar(aes(fill = variable), position = "dodge", stat = "identity") 
-# # +
-# #   scale_fill_manual(values = c("#FF0000", "#C800C8" , "#F5A500", "#37C8FF"))
-# 
-# 
-# 
-# 
-# 
-# # for each combination
-# p1 <- ggplot(data = slope_budyko_data) + 
-#   geom_boxplot(aes(x = slope, y = combination)) + 
-#   xlab("slope in P-E [mm/month]") +
-#   ylab("Combination of datasets") +
-#   geom_vline(xintercept = 0, color = "red") +
-#   theme(
-#     # axis.title.x = element_blank(),
-#     # axis.text.x = element_blank(),
-#     # axis.ticks.x = element_blank(),
-#     axis.line   = element_blank(),
-#     panel.border = element_blank(),
-#     axis.text = element_text(size = 10),
-#     panel.grid.major.x = element_blank(),
-#     panel.grid.minor.x = element_blank()
-#   )
-# 
-# 
-# p2 <- ggplot() +
-#   geom_col(data = budyko_entopy_comb, aes(y = combination, x = joint_entropy_comb)) +
-#   scale_x_reverse() +  
-#   scale_y_discrete(position = "right") +
-#   xlab("Joint enropy of PET/P and E/P") +
-#   theme(
-#     axis.title.y = element_blank(),
-#     # axis.text.x = element_blank(),
-#     # axis.ticks.x = element_blank(),
-#     axis.text.y = element_blank(),
-#     axis.ticks.y = element_blank(),
-#     axis.line   = element_blank(),
-#     panel.border = element_blank(),
-#     axis.text = element_text(size = 10),
-#     panel.grid.major.x = element_blank(),
-#     panel.grid.minor.x = element_blank(),
-#   )
-# 
-# plot_grid(p1, p2, ncol = 2, align = "h", rel_widths = c(3, 1)) 
-# 
-# 
-# # p3 <- ggplot() +
-# #   geom_col(data = budyko_entopy_comb, aes(y = combination, x = mutual_info_comb)) +
-# #   scale_x_reverse() +
-# #   scale_y_discrete(position = "right") +
-# #   xlab("Mutual information") +
-# #   theme(
-# #     axis.title.y = element_blank(),
-# #     # axis.text.x = element_blank(),
-# #     # axis.ticks.x = element_blank(),
-# #     axis.text.y = element_blank(),
-# #     axis.ticks.y = element_blank(),
-# #     axis.line   = element_blank(),
-# #     panel.border = element_blank(),
-# #     axis.text = element_text(size = 10),
-# #     panel.grid.major.x = element_blank(),
-# #     panel.grid.minor.x = element_blank(),
-# #   )
-# # 
-# # plot_grid(p1, p3, ncol = 2, align = "h", rel_widths = c(3, 1))
-# 
-# 
-# 
-# p4 <- ggplot() +
-#   geom_col(data = budyko_entopy_comb, aes(y = factor(combination), x = arid_entropy_comb)) +
-#   scale_x_reverse() +
-#   scale_y_discrete(position = "right") +
-#   xlab("Entropy of PET/P") +
-#   theme(
-#     axis.title.y = element_blank(),
-#     axis.text.y = element_blank(),
-#     axis.ticks.y = element_blank(),
-#     axis.line   = element_blank(),
-#     panel.border = element_blank(),
-#     axis.text = element_text(size = 10),
-#     panel.grid.major.x = element_blank(),
-#     panel.grid.minor.x = element_blank(),
-#   )
-# 
-# plot_grid(p1, p4, ncol = 2, align = "h", rel_widths = c(3, 1))
-# 
-# p5 <- ggplot() +
-#   geom_col(data = budyko_entopy_comb, aes(y = factor(combination), x = evap_entropy_comb)) +
-#   scale_x_reverse() +
-#   scale_y_discrete(position = "right") +
-#   xlab("Entropy of E/P") +
-#   theme(
-#     axis.title.y = element_blank(),
-#     axis.text.y = element_blank(),
-#     axis.ticks.y = element_blank(),
-#     axis.line   = element_blank(),
-#     panel.border = element_blank(),
-#     axis.text = element_text(size = 10),
-#     panel.grid.major.x = element_blank(),
-#     panel.grid.minor.x = element_blank(),
-#   )
-# 
-# plot_grid(p1, p5, ncol = 2, align = "h", rel_widths = c(3, 1))
-# 
-# 
-# budyko_entopy_comb_melt <- melt(budyko_entopy_comb, id.vars = c('combination', 'number_comb'))
-# 
-# ggplot(data = budyko_entopy_KG_ment, aes(x = factor(kg_code), value)) +
-#   geom_bar(aes(fill = variable), position = "dodge", stat = "identity") 
-# # +
-# #   scale_fill_manual(values = c("#FF0000", "#C800C8" , "#F5A500", "#37C8FF"))
-# 
-# 
-
-
-
-
-
-
-
-
-
-## Figures
-to_plot_sf <- slope_budyko_data[, .(x, y, evap_index)] %>% 
-  rasterFromXYZ(res = c(0.25, 0.25), crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
-  st_as_stars() %>% 
-  st_as_sf()
-
-entropy_med <- ggplot(to_plot_sf) +
-  geom_sf(aes(color = entropy_kg, fill = entropy_kg)) +
-  scale_color_gradient2(low =  '#06FF00', mid = '#FFE400', high = '#FF1700') +
-  scale_fill_gradient2(low =  '#06FF00', mid = '#FFE400', high = '#FF1700') +
-  coord_sf(expand = FALSE, crs = "+proj=robin") +
-  scale_x_continuous(breaks = seq(-20, 30, 10)) +
-  scale_y_continuous(breaks = seq(30, 70, 10)) +
+ggplot() +
+  geom_raster(data = p_minus_e_map_data , aes(x = x, y = y, fill = slope_p_minus_e)) +
+  # scale_fill_gradient2(low = 'tomato', mid = 'grey', high = 'steelblue') +
+  scale_fill_gradientn(colours = c('#F12D2D', '#F6F6F6', '#3F52E3'), values = scales::rescale(c(-0.11, -0.005,0, 0.005, 0.08))) +
+  borders(colour = 'black', size = 0.8) +
+  coord_cartesian(xlim = c(-10,40), ylim = c(30, 45), expand = FALSE) +
+  labs(fill = "Slope [mm/month]") +
+  ggtitle('Slope of P-E, derive from the best combination (P: terraclimate, E: trerraclimate)') + 
+  scale_x_continuous(labels = ~ paste0(.x, "°")) +
+  scale_y_continuous(labels = ~ paste0(.x, "°")) +
   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
         axis.ticks.length = unit(0, "cm"),
         panel.grid.major = element_line(colour = "gray60"),
-        axis.title = element_text(size = 16), 
-        legend.text = element_text(size = 12), 
-        legend.title = element_text(size = 8))
+        panel.border = element_rect(size = 1, fill = NA),
+        axis.title = element_blank(), 
+        axis.text = element_text(size = 15, color = 'black'),
+        plot.title = element_text(size = 20), 
+        # legend.text = element_text(size = 15),
+        legend.title = element_text(size = 15),
+        legend.position = 'bottom')
+  
 
-entropy_med
+best_aridity_data <- aridity_data[entropy_comb == max(entropy_comb)]
+# best_aridity_data <- aridity_data[arid_comb == 'pet_terraclimate_p_terraclimate']
+# best_aridity_data <- aridity_data[arid_comb == "pet_em-earth-hs_p_em-earth" ]
+best_aridity_data
+# unique(aridity_data[,sort(entropy_comb)])[2]
+# best_aridity_data <- aridity_data[entropy_comb == unique(aridity_data[,sort(entropy_comb)])[8]]
+# unique(best_aridity_data$arid_comb)
+
+# best_aridity_data$bin_arid <- NA
+best_aridity_data[arid_index <= 1, bin_arid := 'Humid'][arid_index > 1 & arid_index <= 2, bin_arid := 'Dry subhumid']
+best_aridity_data[arid_index > 2 & arid_index <= 5, bin_arid := 'Semi-arid'][arid_index > 5 & arid_index < 20, bin_arid := 'Arid']
+best_aridity_data[arid_index > 20, bin_arid := 'Hyperarid']
+
+
+unique(aridity_data$arid_comb)
+
+range(best_aridity_data$arid_index)
+
+ggplot() +
+  geom_raster(data = best_aridity_data, aes(x = x, y = y, fill = bin_arid)) +
+  # scale_fill_gradient2(low = 'tomato', mid = 'grey', high = 'steelblue') +
+  # scale_fill_gradientn(colours = c("#0047AC", "#97DEFF", "#FFD301", "#FF6000"), values = scales::rescale(c(0, 1,2, 5, 16))) +
+  scale_fill_manual(values = c('Humid' = "#0047AC", 'Dry subhumid'="#97DEFF", 'Semi-arid' = "#FFD301", 'Arid' = "#FF6000", 'Hyperarid' = '#E21818'), name=NULL) +
+  borders(colour = 'black', size = 0.8) +
+  coord_cartesian(xlim = c(-10,40), ylim = c(30, 45), expand = FALSE) +
+  # labs(fill = "Slope [mm/month]") +
+  ggtitle('Aridity Index, derive from the best combination (PET: gleam, P: persiann)') + 
+  scale_x_continuous(labels = ~ paste0(.x, "°")) +
+  scale_y_continuous(labels = ~ paste0(.x, "°")) +
+  # guides(color = guide_legend(override.aes = list(size = 10))) +
+  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+        axis.ticks.length = unit(0, "cm"),
+        panel.grid.major = element_line(colour = "gray60"),
+        panel.border = element_rect(size = 1, fill = NA),
+        axis.title = element_blank(), 
+        axis.text = element_text(size = 15, color = 'black'),
+        plot.title = element_text(size = 20), 
+        # legend.title = element_blank(),
+        # legend.text = element_text(size = 15),
+        legend.title = element_text(size = 15),
+        legend.position = 'bottom')
+  
 
 
 
-test <- slope_budyko_data[kg_code == 15 ,]
-min_evap_ent_comb <- min(test$evap_entropy_comb)
-test2 <- test[evap_entropy_comb == min_evap_ent_comb, ]
-head(test2)
 
-unique(test2$combination)
+# to_plot_sf <- p_minus_e_map_data[, .(x, y, slope_p_minus_e)] %>% 
+#   rasterFromXYZ(res = c(0.25, 0.25), crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
+#   st_as_stars() %>% 
+#   st_as_sf()
+# 
+# ggplot(data = p_minus_e_map_data) +
+#   geom_raster() +
+#   
+# 
+# ?rasterFromXYZ()
+# 
+# entropy_med <- ggplot(to_plot_sf) +
+#   geom_sf(aes(color = slope_p_minus_e, fill = slope_p_minus_e)) +
+#   borders(color = 'black') +
+#   scale_color_gradient2(low = 'tomato' , mid = 'grey', high = 'steelblue') +
+#   scale_fill_gradient2(low = 'tomato', mid = 'grey', high = 'steelblue') +
+#   # coord_cartesian(xlim = c(-10.25,40.25), ylim = c(29.75, 45.25)) +
+#   coord_sf(expand = FALSE, crs = "+proj=robin", xlim = c(-10.25,40.25), ylim = c(29.75, 45.25)) +
+#   scale_x_continuous(breaks = seq(-20, 30, 10)) +
+#   scale_y_continuous(breaks = seq(30, 70, 10)) +
+#   ggtitle('Slope of P-E, derive from the best combination (P: terraclimate, E: trerraclimate)') + 
+#   labs(fill = "Slope [mm/month]") +
+#   theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+#         axis.ticks.length = unit(0, "cm"),
+#         panel.grid.major = element_line(colour = "gray60"),
+#         axis.title = element_text(size = 20), 
+#         plot.title = element_text(size = 20), 
+#         # legend.text = element_text(size = 15),
+#         legend.title = element_text(size = 15),
+#         legend.position = 'bottom')
+#         
+# entropy_med
+
+
 
 
 
