@@ -205,10 +205,10 @@ precip_category_fun <-function(comb) {
   if(str_detect(comb, 'p_mswep|p_merra2|p_jra55|p_ncep-ncar|p_era5')){
     # cat <- 'reanalysis'
     return('reanalysis')
-  }else if(str_detect(comb, 'p_terraclimate|p_em-earth|p_jra55|p_gpcc')){
+  }else if(str_detect(comb, 'p_terraclimate|p_em-earth|p_gpcc')){
     # cat <- 'observational'
     return('observational')
-  }else if(str_detect(comb, 'p_cmorph|p_persiann|p_jra55|p_chirps')){
+  }else if(str_detect(comb, 'p_cmorph|p_persiann|p_chirps')){
     # cat <- 'satellite_based'
     return('satellite_based')
   }

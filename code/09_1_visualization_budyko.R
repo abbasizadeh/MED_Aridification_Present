@@ -330,3 +330,4 @@ ggplot(data = budyko_data) +
   ) +
   ggtitle('The performance of P, PET and E datasets on the Budyko space') +
   facet_wrap(vars(combination))
+
