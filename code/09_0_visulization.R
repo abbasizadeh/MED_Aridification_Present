@@ -253,12 +253,11 @@ plot_entrpy_evap_2 <-
 
 plot_entrpy_evap_2
 
-plot_grid(plot_entrpy_arid_2, plot_slope_kg_2, plot_entrpy_evap_2, ncol = 3, align = "h",
+ p <- plot_grid(plot_entrpy_arid_2, plot_slope_kg_2, plot_entrpy_evap_2, ncol = 3, align = "h",
           rel_widths = c(1, 3, 1)) 
 
 
-
-
+ggsave(file="test.svg", plot=p, width=20, height=15)
 # ==============================================================================
 # visualize the categories of precip datasets
 precip_category_color <- c(observational = '#4D96FF', 

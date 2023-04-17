@@ -35,8 +35,7 @@ for (precip_data_index in 1:length(precip_obs_files)) {
   save_dir <- paste0(PATH_OUTFILES, "/obs/budyko/budyko_precip/", new_name)
   dummie_brick@z[[1]] <- as.Date("2019-12-31", format = "%Y-%m-%d")
   save_nc(dummie_brick, paste0(PATH_OUTFILES, "/obs/budyko/budyko_precip/", new_name))
-  
-}
+  }
 
 
 # calculation of mean annual simulation precipitation for the whole period 2000-2019
@@ -63,9 +62,7 @@ for (precip_data_index in 1:length(precip_sim_files)) {
   
   dummie_brick@z[[1]] <- as.Date("2019-12-31", format = "%Y-%m-%d")
   save_nc(dummie_brick, paste0(PATH_OUTFILES, "/sim/budyko/budyko_precip/", new_name))
-  
- 
-}
+  }
 
 
 
