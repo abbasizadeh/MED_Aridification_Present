@@ -267,67 +267,94 @@ ggplot(data = budyko_data_physical) +
 
 # budyko_data_physical[, p_pet_cat := paste0('P_arid_', precip_cat_arid, '_P_evpo_', precip_cat_evap, '_PET_',pet_category)]
 
-# ggplot(data = budyko_data_physical) +
-#   geom_point(aes(x = arid_index, y = evap_index, color = factor(kg_code) ), size = 0.6) +
-#   scale_color_manual(values =  KG_class) + 
+# ggplot(data = budyko_data) +
+#   geom_point(aes(x = arid_index, y = evap_index, color = kg_name), size = 0.6) +
+#   scale_color_manual(values =  KG_class_names) + 
 #   geom_abline(intercept = 0, slope = 1) +
-#   geom_hline(yintercept = evap_bin, color = "#FFA559") +
-#   geom_vline(xintercept = arid_bin, color = "#FFA559") +
-#   ylim(c(0, 4)) + xlim(c(0, 30)) + labs(x = "Aridity Index [PET/P]", y = "Evaporative Index [E/P]", color = "KG_class") +
-#   geom_segment(aes(x = 1, xend = 30, y = 1, yend = 1)) +
+#   # geom_hline(yintercept = evap_bin, color = "#FFA559", linetype = 'dash', size) +
+#   # geom_vline(xintercept = arid_bin, color = "#FFA559") +
+#   ylim(c(0, 4)) + labs(x = "Aridity Index [PET/P]", y = "Evaporative Index [E/P]", color = "KG_class") +
+#   geom_segment(aes(x = 1, xend = 21, y = 1, yend = 1)) +
+#   geom_vline(aes(xintercept = 1), color = "#0047AC", size = 0.8) +
+#   geom_vline(aes(xintercept = 2), color = "#1497D4", size = 0.8) +
+#   geom_vline(aes(xintercept = 5), color = "#FFD301", size = 0.8) +
+#   geom_vline(aes(xintercept = 20), color = "#FFB921", size = 0.8) +
+#   scale_x_continuous(breaks = c(0, 1, 2, 5, 20), limits = c(0, 21)) +
 #   guides(color = guide_legend(override.aes = list(size = 5))) +
 #   theme_bw() + 
-#   ggtitle('The performance of P and PET datasets on budyko space') +
-#   facet_wrap(vars(pet_category))
+#   theme(
+#     strip.text = element_text(size = 6, face = 'bold'),
+#     strip.background = element_rect(fill = NA)
+#   ) +
+#   ggtitle('The performance of P, PET and E datasets on the Budyko space') +
+#   facet_wrap(vars(combination))
 
-# unique(budyko_data_physical[p_pet_cat == "P_arid_satellite_based_P_evpo_observational_PET_temperature_based", combination])
+
+
 
 # budyko_data[, p_pet_cat := paste0('P_arid_', precip_cat_arid, '_P_evpo_', precip_cat_evap, '_PET_',pet_category)]
 
-ggplot(data = budyko_data_physical) +
-  geom_point(aes(x = arid_index, y = evap_index, color = kg_name), size = 0.4) +
-  scale_color_manual(values =  KG_class_names) + 
-  geom_abline(intercept = 0, slope = 1) +
-  # geom_hline(yintercept = evap_bin, color = "#FFA559", linetype = 'dash', size) +
-  # geom_vline(xintercept = arid_bin, color = "#FFA559") +
-  ylim(c(0, 4)) + labs(x = "Aridity Index [PET/P]", y = "Evaporative Index [E/P]", color = "KG_class") +
-  geom_segment(aes(x = 1, xend = 21, y = 1, yend = 1)) +
-  geom_vline(aes(xintercept = 1), color = "#0047AC", size = 0.8) +
-  geom_vline(aes(xintercept = 2), color = "#1497D4", size = 0.8) +
-  geom_vline(aes(xintercept = 5), color = "#FFD301", size = 0.8) +
-  geom_vline(aes(xintercept = 20), color = "#FFB921", size = 0.8) +
-  scale_x_continuous(breaks = c(0, 1, 2, 5, 20), limits = c(0, 21)) +
-  guides(color = guide_legend(override.aes = list(size = 5))) +
-  theme_bw() + 
-  theme(
-    strip.text = element_text(size = 8, face = 'bold'),
-    strip.background = element_rect(fill = NA)
-  ) +
-  ggtitle('The performance of P, PET and E datasets on the Budyko space') +
-  facet_wrap(vars(combination), ncol = 5)
+p <-ggplot(data = budyko_data_physical) +
+      geom_point(aes(x = arid_index, y = evap_index, color = kg_name), size = 0.8) +
+      scale_color_manual(values =  KG_class_names) + 
+      geom_abline(intercept = 0, slope = 1) +
+      # geom_hline(yintercept = evap_bin, color = "#FFA559", linetype = 'dash', size) +
+      # geom_vline(xintercept = arid_bin, color = "#FFA559") +
+      ylim(c(0, 4)) + labs(x = "Aridity Index [PET/P]", y = "Evaporative Index [E/P]", color = "KG class") +
+      geom_segment(aes(x = 1, xend = 21, y = 1, yend = 1)) +
+      geom_vline(aes(xintercept = 1), color = "#0047AC", size = 0.8) +
+      geom_vline(aes(xintercept = 2), color = "#1497D4", size = 0.8) +
+      geom_vline(aes(xintercept = 5), color = "#FFD301", size = 0.8) +
+      geom_vline(aes(xintercept = 20), color = "#FFB921", size = 0.8) +
+      scale_x_continuous(breaks = c(0, 1, 2, 5, 20), limits = c(0, 21)) +
+      guides(color = guide_legend(override.aes = list(size = 5))) +
+      ggtitle('The performance of P, PET and E datasets on the Budyko space') +
+      theme_bw() + 
+      theme(
+        strip.text = element_text(size = 12, face = 'bold'),
+        strip.background = element_rect(fill = NA),
+        axis.text = element_text(size = 18, face = 'bold'),
+        plot.title =element_text(size = 30, face = 'bold'),
+        axis.title = element_text(size = 18, face = 'bold'),
+        legend.text=element_text(size= 15, face = 'bold'),
+        legend.title = element_text(size = 15, face = 'bold')
+      ) +
+      facet_wrap(vars(combination), ncol = 5)
+
+ggsave(file="test.png", plot=p, width=40, height=18)
 
 
+budyko_data_physical_few <- budyko_data_physical[combination %in% 
+                                                   c('p_persiann_pet_em-earth-mb_e_gleam',
+                                                   'p_terraclimate_pet_terraclimate_e_terraclimate',
+                                                   'p_ncep-ncar_pet_gleam_e_gleam',
+                                                   'p_mswep_pet_em-earth-mb_e_terraclimate'),]
+p <- ggplot(data = budyko_data_physical_few) +
+      geom_point(aes(x = arid_index, y = evap_index, color = kg_name), size = 2) +
+      scale_color_manual(values =  KG_class_names) + 
+      geom_abline(intercept = 0, slope = 1) +
+      # geom_hline(yintercept = evap_bin, color = "#FFA559", linetype = 'dash', size) +
+      # geom_vline(xintercept = arid_bin, color = "#FFA559") +
+      ylim(c(0, 4)) + labs(x = "Aridity Index [PET/P]", y = "Evaporative Index [E/P]", color = "KG class") +
+      geom_segment(aes(x = 1, xend = 21, y = 1, yend = 1)) +
+      geom_vline(aes(xintercept = 1), color = "#0047AC", size = 0.8) +
+      geom_vline(aes(xintercept = 2), color = "#1497D4", size = 0.8) +
+      geom_vline(aes(xintercept = 5), color = "#FFD301", size = 0.8) +
+      geom_vline(aes(xintercept = 20), color = "#FFB921", size = 0.8) +
+      scale_x_continuous(breaks = c(0, 1, 2, 5, 20), limits = c(0, 21)) +
+      guides(color = guide_legend(override.aes = list(size = 5))) +
+      theme_bw() + 
+      theme(
+        strip.text = element_text(size = 15, face = 'bold'),
+        strip.background = element_rect(fill = NA),
+        axis.text = element_text(size = 18, face = 'bold'),
+        plot.title =element_text(size = 30, face = 'bold'),
+        axis.title = element_text(size = 18, face = 'bold'),
+        legend.text=element_text(size= 15, face = 'bold'),
+        legend.title = element_text(size = 15, face = 'bold')
+      ) +
+      ggtitle('The performance of P, PET and E datasets on the Budyko space') +
+      facet_wrap(vars(combination), ncol = 2)
 
 
-ggplot(data = budyko_data) +
-  geom_point(aes(x = arid_index, y = evap_index, color = kg_name), size = 0.6) +
-  scale_color_manual(values =  KG_class_names) + 
-  geom_abline(intercept = 0, slope = 1) +
-  # geom_hline(yintercept = evap_bin, color = "#FFA559", linetype = 'dash', size) +
-  # geom_vline(xintercept = arid_bin, color = "#FFA559") +
-  ylim(c(0, 4)) + labs(x = "Aridity Index [PET/P]", y = "Evaporative Index [E/P]", color = "KG_class") +
-  geom_segment(aes(x = 1, xend = 21, y = 1, yend = 1)) +
-  geom_vline(aes(xintercept = 1), color = "#0047AC", size = 0.8) +
-  geom_vline(aes(xintercept = 2), color = "#1497D4", size = 0.8) +
-  geom_vline(aes(xintercept = 5), color = "#FFD301", size = 0.8) +
-  geom_vline(aes(xintercept = 20), color = "#FFB921", size = 0.8) +
-  scale_x_continuous(breaks = c(0, 1, 2, 5, 20), limits = c(0, 21)) +
-  guides(color = guide_legend(override.aes = list(size = 5))) +
-  theme_bw() + 
-  theme(
-    strip.text = element_text(size = 6, face = 'bold'),
-    strip.background = element_rect(fill = NA)
-  ) +
-  ggtitle('The performance of P, PET and E datasets on the Budyko space') +
-  facet_wrap(vars(combination))
-
+ggsave(file="test.png", plot=p, width=40, height=18)

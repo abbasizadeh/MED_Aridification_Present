@@ -174,20 +174,21 @@ plot_grid(plot_slope_kg, plot_entrpy_evap, ncol = 2, align = "h",
 
 # ==============================================================================
 
-plot_slope_kg_2 <- ggplot(data = evap_slope_data, aes(x = slope_p_minus_e, y = kg_name, fill = kg_name)) +
-  geom_boxplot(outlier.shape = NA) + # outlier.shape = 19, outlier.size = 0.5
+plot_slope_kg_2 <- 
+  ggplot(data = evap_slope_data, aes(x = slope_p_minus_e, y = kg_name, fill = kg_name)) +
+  geom_boxplot(outlier.shape = NA, size = 1) + # outlier.shape = 19, outlier.size = 0.5
   stat_summary(fun.y=mean, geom="point", size=2, color="black") +
   scale_fill_manual(values =  KG_class_names) +
   xlab("Slope of P-E [mm/month]") +
   # ylab("Koppen Geiger Class") +
   # xlim(c(-0.15, 0.2)) + 
   scale_x_continuous(breaks = seq(from = -0.2, to = 0.2, by = 0.1), limits = c(-0.15, 0.2))+
-  geom_vline(xintercept = 0, color = "red") +
+  geom_vline(xintercept = 0, color = "red", size = 1) +
   theme_bw() +
   theme(
-    axis.title = element_text(size = 15),
+    axis.title = element_text(size = 18, face = 'bold'),
     axis.line   = element_blank(),
-    axis.text = element_text(size = 15),
+    axis.text = element_text(size = 18, face = 'bold'),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
     axis.title.y = element_blank(), 
@@ -213,9 +214,9 @@ plot_entrpy_arid_2 <-
   xlab("Normalized Entropy of PET/P") +
   theme_bw() +
   theme(
-    axis.title = element_text(size = 15),
+    axis.title = element_text(size = 18, face = 'bold'),
     axis.title.y = element_blank(),
-    axis.text = element_text(size = 15),
+    axis.text = element_text(size = 18, face = 'bold'),
     # axis.text.y = element_blank(),
     # axis.ticks.y = element_blank(),
     axis.line   = element_blank(),
@@ -240,9 +241,9 @@ plot_entrpy_evap_2 <-
   xlab("Normalized Entropy of E/P") +
   theme_bw() +
   theme(
-    axis.title = element_text(size = 15),
+    axis.title = element_text(size = 18, face = 'bold'),
     axis.title.y = element_blank(),
-    axis.text = element_text(size = 15),
+    axis.text = element_text(size = 18, face = 'bold'),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
     axis.line   = element_blank(),
@@ -253,11 +254,11 @@ plot_entrpy_evap_2 <-
 
 plot_entrpy_evap_2
 
- p <- plot_grid(plot_entrpy_arid_2, plot_slope_kg_2, plot_entrpy_evap_2, ncol = 3, align = "h",
+p <- plot_grid(plot_entrpy_arid_2, plot_slope_kg_2, plot_entrpy_evap_2, ncol = 3, align = "h",
           rel_widths = c(1, 3, 1)) 
 
 
-ggsave(file="test.svg", plot=p, width=20, height=15)
+ggsave(file="test.png", plot=p, width=30, height=15)
 # ==============================================================================
 # visualize the categories of precip datasets
 precip_category_color <- c(observational = '#4D96FF', 
@@ -268,19 +269,19 @@ plot_precip_category <-
   ggplot(data = evap_slope_data, aes(x = precip_cat_evap, y = slope_p_minus_e, fill = precip_cat_evap)) +
   geom_violin() + 
   scale_fill_manual(values = precip_category_color) +
-  geom_boxplot(width=0.1, fill = 'white', outlier.shape = NA) +
+  geom_boxplot(width=0.1, fill = 'white', outlier.shape = NA, size = 1) +
   stat_summary(fun.y=mean, geom="point", size=2, color="black") +
   xlab("Category of Precipitation Datasets") +
   ylab("Slope of P-E [mm/month]") +
   ylim(c(-0.15, 0.20)) +
-  geom_hline(yintercept = 0, color = "red") +
+  geom_hline(yintercept = 0, color = "red", size = 1) +
   geom_hline(yintercept = -0.15, color = "black") +
   theme_bw() +
   theme(
-    axis.title = element_text(size = 15),
+    axis.title = element_text(size = 18, face = 'bold'),
     axis.line = element_blank(),
     # panel.border = element_blank(),
-    axis.text = element_text(size = 15),
+    axis.text = element_text(size = 18, face = 'bold'),
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
     legend.position = 'none',#'bottom',
@@ -323,12 +324,12 @@ plot_entrpy_precip_category <-
   ggtitle('Distributions of P-E using different precipitation categories') + 
   theme_bw() +
   theme(
-    axis.title = element_text(size = 15),
+    axis.title = element_text(size = 18, face = 'bold'),
     axis.title.x = element_blank(),
-    axis.text = element_text(size = 15),
+    axis.text = element_text(size = 18, face = 'bold'),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    plot.title = element_text(size=20),
+    plot.title = element_text(size = 30, face = 'bold'),
     # axis.line.y = element_blank(),
     # panel.border = element_blank(),
     # axis.text = element_text(size = 10),
@@ -340,10 +341,11 @@ plot_entrpy_precip_category <-
 plot_entrpy_precip_category
 
 
-plot_grid(plot_entrpy_precip_category, plot_precip_category,  nrow = 2, 
+p <- plot_grid(plot_entrpy_precip_category, plot_precip_category,  nrow = 2, 
           axis = "l", align = "v", rel_heights = c(1, 2.5)) 
 
 
+ggsave(file="test.png", plot=p, width=30, height=15)
 
 # descriptive_evap <- evap_slope_data[, describe(evap_index), by = precip_cat_evap]
 # descriptive_slope <- evap_slope_data[, describe(slope_p_minus_e), by = precip_cat_evap]
@@ -370,19 +372,19 @@ plot_precip_category_without_sahara <-
   ggplot(data = evap_slope_data_without_sahara, aes(x = precip_cat_evap, y = slope_p_minus_e, fill = precip_cat_evap)) +
   geom_violin() + 
   scale_fill_manual(values = precip_category_color) +
-  geom_boxplot(width=0.1, fill = 'white', outlier.shape = NA) +
+  geom_boxplot(width=0.1, fill = 'white', outlier.shape = NA, size = 1) +
   stat_summary(fun.y=mean, geom="point", size=2, color="black") +
   xlab("Category of Precipitation Datasets") +
   ylab("Slope of P-E [mm/month]") +
   ylim(c(-0.15, 0.2)) +
-  geom_hline(yintercept = 0, color = "red") +
+  geom_hline(yintercept = 0, color = "red", size = 1) +
   geom_hline(yintercept = -0.15, color = "black") +
   theme_bw() +
   theme(
-    axis.title = element_text(size = 15),
+    axis.title = element_text(size = 18, face = 'bold'),
     axis.line = element_blank(),
     # panel.border = element_blank(),
-    axis.text = element_text(size = 15),
+    axis.text = element_text(size = 18, face = 'bold'),
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
     legend.position = 'none',#'bottom',
@@ -416,15 +418,15 @@ plot_entrpy_precip_category_without_sahara <-
   ylab("Normalized Entropy of E/P") +
   # ylim(c(0.3, 0)) +
   geom_hline(aes(yintercept = 0), color = "black") +
-  ggtitle('Distributions of P-E using different precipitation categories without Sahara desert') + 
+  ggtitle('Distributions of P-E using different precipitation categories without Sahara Desert') + 
   theme_bw() +
   theme(
-    axis.title = element_text(size = 15),
+    axis.title = element_text(size = 18, face = 'bold'),
     axis.title.x = element_blank(),
-    axis.text = element_text(size = 15),
+    axis.text = element_text(size = 18, face = 'bold'),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    plot.title = element_text(size=20),
+    plot.title = element_text(size=30, face = 'bold'),
     # axis.line.y = element_blank(),
     # panel.border = element_blank(),
     # axis.text = element_text(size = 10),
@@ -436,10 +438,10 @@ plot_entrpy_precip_category_without_sahara <-
 plot_entrpy_precip_category_without_sahara
 
 
-plot_grid(plot_entrpy_precip_category_without_sahara, plot_precip_category_without_sahara,  nrow = 2, 
+p <- plot_grid(plot_entrpy_precip_category_without_sahara, plot_precip_category_without_sahara,  nrow = 2, 
           axis = "l", align = "v", rel_heights = c(1, 2.5)) 
 
-
+ggsave(file="test.png", plot=p, width=30, height=15)
 
 # ==============================================================================
 # aridity dataset categories for the whole med
@@ -453,15 +455,18 @@ fill_color <- c(temperature_based_observational = '#4D96FF',
 p4_data <- data.table(entropy_comb = unique(aridity_data$entropy_cat_comb), 
                       cat_comb = unique(aridity_data$cat_comb))
 
-plot_aridity <-  
+plot_aridity <-
   ggplot(data = aridity_data, aes(x = cat_comb, y = arid_index, fill = cat_comb)) +
-  geom_violin() + 
+  geom_violin() +
   scale_fill_manual(values = fill_color) +
   # scale_color_manual(values = color_color) +
-  geom_boxplot(width=0.1, outlier.shape = NA,fill = "white") +
-  labs(y = 'Aridity index PET/P', x ="Dataset categories") +
-  stat_summary(fun.y=mean, geom="point", size=2, color="black") +
-  # ylim(c(0, 20)) + #xlab('aridity index PET/P') +
+  geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", size = 1) +
+  labs(y = 'Aridity index PET/P', x = "Dataset categories") +
+  stat_summary(
+    fun.y = mean,
+    geom = "point",
+    size = 2,
+    color = "black") +
   geom_hline(aes(yintercept = 0), color = "black") +
   geom_hline(aes(yintercept = 1), color = "#0047AC") +
   geom_hline(aes(yintercept = 2), color = "#1497D4") +
@@ -472,14 +477,19 @@ plot_aridity <-
   ggtitle('The aridity index for the whole Mediterranean region') +
   theme_bw() +
   theme(
-    axis.title = element_text(size = 15),
-    axis.text = element_text(size= 15),
+    axis.title = element_text(size = 18, face = 'bold'),
+    axis.text = element_text(size = 18, face = 'bold'),
+    plot.title = element_text(size = 30, face = 'bold'),
     # axis.ticks.y = element_blank(),
     # axis.line  = element_blank(),
     # panel.border = element_blank()
     # legend.position = c(0.75, 0.5),
     legend.title = element_blank(),
-    axis.text.x = element_text(size = 10, face = 'bold'),
+    axis.text.x = element_text(
+      size = 18,
+      face = 'bold',
+      angle = -5
+    ),
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
     legend.position = 'none'#c(0.8, 0.2)
@@ -487,6 +497,9 @@ plot_aridity <-
 
   # guides(shape = guide_legend(override.aes = list(size = 0.5)))
 plot_aridity 
+ggsave(file="test.png", plot=plot_aridity, width=30, height=15)
+
+
 
 aridity_data_without_desert <- aridity_data[kg_code != 4, ]
 plot_aridity_without_desert <-  
@@ -494,7 +507,7 @@ plot_aridity_without_desert <-
   geom_violin() + 
   scale_fill_manual(values = fill_color) +
   # scale_color_manual(values = color_color) +
-  geom_boxplot(width=0.1, outlier.shape = NA,fill = "white") +
+  geom_boxplot(width=0.1, outlier.shape = NA,fill = "white", size = 1) +
   labs(y = 'Aridity index PET/P', x ="Dataset categories") +
   stat_summary(fun.y=mean, geom="point", size=2, color="black") +
   # ylim(c(0, 20)) + #xlab('aridity index PET/P') +
@@ -505,17 +518,18 @@ plot_aridity_without_desert <-
   geom_hline(aes(yintercept = 20), color = "#FFB921") +
   scale_y_continuous(breaks = c(0, 1, 2, 5, 20), limits = c(0, 7)) +
   # annotate("text", x=1, y=0, label="Some text", angle=90)
-  ggtitle('The aridity index for the Mediterranean region withour Sahara') +
+  ggtitle('The aridity index for the Mediterranean region without Sahara Desert') +
   theme_bw() +
   theme(
-    axis.title = element_text(size = 15),
-    axis.text = element_text(size= 15),
+    axis.title = element_text(size = 18, face = 'bold'),
+    axis.text = element_text(size= 18, face = 'bold'),
+    plot.title = element_text(size = 30, face = 'bold'),
     # axis.ticks.y = element_blank(),
     # axis.line  = element_blank(),
     # panel.border = element_blank()
     # legend.position = c(0.75, 0.5),
     legend.title = element_blank(),
-    axis.text.x = element_text(size = 10, face = 'bold'),
+    axis.text.x = element_text(size = 18, face = 'bold', angle = -5),
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
     legend.position = 'none'#c(0.8, 0.2)
@@ -523,7 +537,7 @@ plot_aridity_without_desert <-
 
   # guides(shape = guide_legend(override.aes = list(size = 0.5)))
 plot_aridity_without_desert
-
+ggsave(file="test.png", plot=plot_aridity_without_desert, width=30, height=15)
 #=============================================================================== 
 # aridity dataset categories for each KG
 
@@ -676,33 +690,37 @@ p_minus_e_map_data <- evap_slope_data[entropy_evap_comb == min(entropy_evap_comb
 # map
 path_shape_land <- ('~/shared/data_projects/ithaca/misc/shp_land/GSHHS_f_L1.shp')
 land_shape <- st_read(path_shape_land)
-plot(land_shape)
+# plot(land_shape)
 
 
 # box <- c(xmin  = -10.25, xmax = 40.25, ymin = 29.75, ymax = 45.25)
 # land_shape_med <- st_crop(land_shape, box)
 
-ggplot() +
-  geom_raster(data = p_minus_e_map_data , aes(x = x, y = y, fill = slope_p_minus_e)) +
-  # scale_fill_gradient2(low = 'tomato', mid = 'grey', high = 'steelblue') +
-  scale_fill_gradientn(colours = c('#F12D2D', '#F6F6F6', '#3F52E3'), values = scales::rescale(c(-0.11, -0.005,0, 0.005, 0.08))) +
-  borders(colour = 'black', size = 0.8) +
-  coord_cartesian(xlim = c(-10,40), ylim = c(30, 45), expand = FALSE) +
-  labs(fill = "Slope [mm/month]") +
-  ggtitle('Slope of P-E, derive from the best combination (P: terraclimate, E: trerraclimate)') + 
-  scale_x_continuous(labels = ~ paste0(.x, "°")) +
-  scale_y_continuous(labels = ~ paste0(.x, "°")) +
-  theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
-        axis.ticks.length = unit(0, "cm"),
-        panel.grid.major = element_line(colour = "gray60"),
-        panel.border = element_rect(size = 1, fill = NA),
-        axis.title = element_blank(), 
-        axis.text = element_text(size = 15, color = 'black'),
-        plot.title = element_text(size = 20), 
-        # legend.text = element_text(size = 15),
-        legend.title = element_text(size = 15),
-        legend.position = 'bottom')
+p <-ggplot() +
+      geom_raster(data = p_minus_e_map_data , aes(x = x, y = y, fill = slope_p_minus_e)) +
+      # scale_fill_gradient2(low = 'tomato', mid = 'grey', high = 'steelblue') +
+      scale_fill_gradientn(colours = c('#F12D2D', '#F6F6F6', '#3F52E3'), values = scales::rescale(c(-0.11, -0.005,0, 0.005, 0.08))) +
+      borders(colour = 'black', size = 1) +
+      coord_cartesian(xlim = c(-10,40), ylim = c(30, 45), expand = FALSE) +
+      labs(fill = "Slope [mm/month]") +
+      ggtitle('Slope of P-E, derive from the best combination (P: TerraClimate, E: TrerraClimate)') + 
+      scale_x_continuous(labels = ~ paste0(.x, "°")) +
+      scale_y_continuous(labels = ~ paste0(.x, "°")) +
+      theme(panel.background = element_rect(fill = NA), panel.ontop = TRUE,
+            axis.ticks.length = unit(0, "cm"),
+            panel.grid.major = element_line(colour = "gray60"),
+            panel.border = element_rect(size = 1, fill = NA),
+            axis.title = element_blank(), 
+            axis.text = element_text(size = 18, color = 'black', face = 'bold'),
+            plot.title = element_text(size = 30, face = 'bold'), 
+            legend.text = element_text(size = 20, face = 'bold'),
+            legend.title = element_text(size = 20, face = 'bold'),
+            legend.key.size = unit(2, 'cm'),
+            legend.position = 'bottom')
   
+
+ggsave(file="test.png", plot=p, width=40, height=18)
+
 
 best_aridity_data <- aridity_data[entropy_comb == max(entropy_comb)]
 # best_aridity_data <- aridity_data[arid_comb == 'pet_terraclimate_p_terraclimate']
